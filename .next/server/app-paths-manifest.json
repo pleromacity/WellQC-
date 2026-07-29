@@ -1,1 +1,8 @@
-{}
+{
+  "/activity/page": "app/activity/page.js",
+  "/comparison/page": "app/comparison/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/reports/page": "app/reports/page.js",
+  "/upload/page": "app/upload/page.js",
+  "/wells/page": "app/wells/page.js"
+}
