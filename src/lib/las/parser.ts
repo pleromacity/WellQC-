@@ -1,3 +1,5 @@
+import { standardiseMnemonic } from './standardiser';
+
 export interface LASHeaderItem {
   mnemonic: string;
   unit: string;
@@ -129,12 +131,26 @@ export function parseLASContent(content: string): ParsedLAS {
     curvesData[c.mnemonic] = [];
   });
   
+  // Identify if any curve in curveMetas represents Measured Depth
+  const depthCurveIndex = curveMetas.findIndex((c) => {
+    const std = standardiseMnemonic(c.mnemonic, c.unit);
+    return std.category === 'DEPTH' || std.standardMnemonic === 'DEPT';
+  });
+
   for (const line of asciiLines) {
     const tokens = line.trim().split(/\s+/).map((t) => parseFloat(t));
-    if (tokens.length >= curveMetas.length && !isNaN(tokens[0])) {
-      depthValues.push(tokens[0]);
+    if (tokens.length > 0 && !isNaN(tokens[0])) {
+      const depthVal = (depthCurveIndex >= 0 && depthCurveIndex < tokens.length)
+        ? tokens[depthCurveIndex]
+        : tokens[0];
+      depthValues.push(depthVal);
+
+      // If no depth curve is declared in ~C header but tokens has an extra leading column for depth, offset curve indices by +1
+      const offset = (depthCurveIndex === -1 && tokens.length > curveMetas.length) ? 1 : 0;
+
       curveMetas.forEach((c, idx) => {
-        const val = tokens[idx];
+        const tokenIdx = idx + offset;
+        const val = tokenIdx < tokens.length ? tokens[tokenIdx] : nullValue;
         curvesData[c.mnemonic].push(isNaN(val) ? nullValue : val);
       });
     }
