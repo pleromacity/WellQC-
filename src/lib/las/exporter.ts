@@ -207,26 +207,56 @@ export function convertToStandardUnit(
   rawUnit: string,
   standardMnemonic: string,
 ): { value: number; converted: boolean } {
-  const unit = rawUnit.trim().toUpperCase();
+  const unit = rawUnit.trim().toUpperCase().replace(/[^A-Z0-9%/]/g, "");
 
-  if (standardMnemonic === "NPHI" && (unit === "%" || unit === "PU")) {
-    return Math.abs(value) > 1 ? { value: value / 100, converted: true } : { value, converted: false };
+  // 1. NPHI (Neutron Porosity: % or PU -> V/V decimal 0.0 to 0.6)
+  if (standardMnemonic === "NPHI") {
+    const isPercentUnit =
+      unit === "%" ||
+      unit === "PU" ||
+      unit.includes("PERCENT") ||
+      unit.includes("PCT") ||
+      unit.includes("P.U");
+    if (isPercentUnit || Math.abs(value) > 1.0) {
+      return Math.abs(value) > 1.0 ? { value: value / 100, converted: true } : { value, converted: false };
+    }
   }
 
-  if (standardMnemonic === "RHOB" && unit === "KGM3") {
-    return { value: value / 1000, converted: true };
+  // 2. RHOB (Bulk Density: kg/m3 -> g/cc decimal 1.0 to 3.2)
+  if (standardMnemonic === "RHOB") {
+    const isKgM3Unit =
+      unit === "KGM3" ||
+      unit.includes("KG") ||
+      unit.includes("M3") ||
+      unit.includes("G/M3");
+    if (isKgM3Unit || Math.abs(value) > 100.0) {
+      return Math.abs(value) > 100.0 ? { value: value / 1000, converted: true } : { value, converted: false };
+    }
   }
 
-  if (standardMnemonic === "CALI" && unit === "MM") {
-    return { value: value / 25.4, converted: true };
+  // 3. CALI (Caliper: mm or cm -> inch 4.0 to 30.0)
+  if (standardMnemonic === "CALI") {
+    const isMmUnit = unit === "MM" || unit.includes("MILLI");
+    const isCmUnit = unit === "CM" || unit.includes("CENTI");
+
+    if (isMmUnit || Math.abs(value) > 40.0) {
+      return Math.abs(value) > 40.0 ? { value: value / 25.4, converted: true } : { value, converted: false };
+    }
+    if (isCmUnit) {
+      return { value: value / 2.54, converted: true };
+    }
   }
 
-  if (standardMnemonic === "CALI" && unit === "CM") {
-    return { value: value / 2.54, converted: true };
-  }
-
-  if (standardMnemonic === "DT" && (unit === "US/M" || unit === "US/MET")) {
-    return { value: value / 3.280839895, converted: true };
+  // 4. DT (Sonic Travel Time: us/m -> us/ft 40 to 200)
+  if (standardMnemonic === "DT") {
+    const isUsMUnit =
+      unit.includes("US/M") ||
+      unit.includes("MET") ||
+      unit.includes("MTR") ||
+      unit.includes("/M");
+    if (isUsMUnit || Math.abs(value) > 200.0) {
+      return Math.abs(value) > 200.0 ? { value: value / 3.280839895, converted: true } : { value, converted: false };
+    }
   }
 
   return { value, converted: false };
