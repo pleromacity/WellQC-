@@ -1,18 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
-import {
-  Settings,
-  Users,
-  Shield,
-  Key,
-  Webhook,
-  Plus,
-  Trash2,
-  CheckCircle2,
-  Lock,
-} from "lucide-react";
+import { Users, Key, Webhook, RefreshCw } from "lucide-react";
 
 interface UserRecord {
   id: string;
@@ -23,148 +13,199 @@ interface UserRecord {
   status: string;
 }
 
-const INITIAL_USERS: UserRecord[] = [
-  { id: "u-1", name: "Dr. Sarah Jenkins", email: "admin@wellqc.com", role: "ADMIN", department: "Enterprise Data Management", status: "ACTIVE" },
-  { id: "u-2", name: "Alexandre Dubois", email: "petro@wellqc.com", role: "PETROPHYSICIST", department: "Subsurface Evaluation", status: "ACTIVE" },
-  { id: "u-3", name: "Marcus Vance", email: "data@wellqc.com", role: "DATA_ENGINEER", department: "Data Pipeline Ops", status: "ACTIVE" },
-  { id: "u-[#", name: "Elena Rostova", email: "geo@wellqc.com", role: "GEOSCIENTIST", department: "Exploration Geology", status: "ACTIVE" },
-];
-
 export default function AdminPanelPage() {
-  const [users, setUsers] = useState<UserRecord[]>(INITIAL_USERS);
+  const [users, setUsers] = useState<UserRecord[]>([]);
   const [activeTab, setActiveTab] = useState<"USERS" | "TOKENS" | "WEBHOOKS">("USERS");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadUsers() {
+      try {
+        const response = await fetch("/api/admin/users", { cache: "no-store" });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Unable to load users.");
+        }
+
+        if (!cancelled) {
+          setUsers(data.users || []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Unable to load users.");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadUsers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <AppShell>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-wellqc-panel/60 border border-wellqc-border p-5 rounded-2xl">
           <div>
             <div className="flex items-center space-x-2">
               <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                Module 10 — Enterprise Administration
+                Module 10 - Enterprise Administration
               </span>
             </div>
             <h1 className="text-2xl font-black text-white tracking-tight mt-1">
               Admin & System Access Control Center
             </h1>
             <p className="text-xs text-wellqc-muted font-mono mt-0.5">
-              Manage user accounts, RBAC roles, API authentication keys, and real-time webhook event subscriptions.
+              Database-backed user, token, and webhook administration.
             </p>
           </div>
         </div>
 
-        {/* Admin Navigation Tabs */}
-        <div className="flex items-center space-x-2 border-b border-wellqc-border pb-3">
-          <button
+        <div className="flex items-center space-x-2 border-b border-wellqc-border pb-3 overflow-x-auto">
+          <TabButton
+            active={activeTab === "USERS"}
             onClick={() => setActiveTab("USERS")}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
-              activeTab === "USERS" ? "bg-purple-600/20 text-purple-300 border border-purple-500/40" : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Users & RBAC Roles ({users.length})</span>
-          </button>
-          <button
+            icon={<Users className="w-4 h-4" />}
+            label={`Users & RBAC Roles (${users.length})`}
+          />
+          <TabButton
+            active={activeTab === "TOKENS"}
             onClick={() => setActiveTab("TOKENS")}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
-              activeTab === "TOKENS" ? "bg-purple-600/20 text-purple-300 border border-purple-500/40" : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <Key className="w-4 h-4" />
-            <span>API Access Tokens</span>
-          </button>
-          <button
+            icon={<Key className="w-4 h-4" />}
+            label="API Access Tokens"
+          />
+          <TabButton
+            active={activeTab === "WEBHOOKS"}
             onClick={() => setActiveTab("WEBHOOKS")}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
-              activeTab === "WEBHOOKS" ? "bg-purple-600/20 text-purple-300 border border-purple-500/40" : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <Webhook className="w-4 h-4" />
-            <span>System Webhook Dispatches</span>
-          </button>
+            icon={<Webhook className="w-4 h-4" />}
+            label="System Webhook Dispatches"
+          />
         </div>
 
-        {/* Tab 1: Users & Roles Table */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 text-red-200 rounded-xl px-4 py-3 text-xs font-mono">
+            {error}
+          </div>
+        )}
+
         {activeTab === "USERS" && (
           <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl overflow-hidden shadow-xl">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-wellqc-card border-b border-wellqc-border text-slate-400 uppercase text-[10px]">
-                  <tr>
-                    <th className="p-4">User Name</th>
-                    <th className="p-4">Email Address</th>
-                    <th className="p-4">Department</th>
-                    <th className="p-4">Assigned Role</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-wellqc-border text-slate-200">
-                  {users.map((u) => (
-                    <tr key={u.id} className="hover:bg-wellqc-card/60 transition-colors">
-                      <td className="p-4 font-bold text-white">{u.name}</td>
-                      <td className="p-4 text-slate-400">{u.email}</td>
-                      <td className="p-4 text-slate-300">{u.department}</td>
-                      <td className="p-4">
-                        <span className="px-2.5 py-1 rounded text-xs font-bold bg-purple-500/10 text-purple-300 border border-purple-500/30">
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-emerald-400 font-bold text-[11px]">ACTIVE ✓</span>
-                      </td>
-                      <td className="p-4 text-right">
-                        <button className="px-3 py-1 rounded bg-wellqc-card hover:bg-purple-500/20 text-purple-300 text-xs border border-wellqc-border">
-                          Edit Role
-                        </button>
-                      </td>
+            {isLoading ? (
+              <div className="p-8 text-center text-cyan-300 text-xs font-mono flex items-center justify-center">
+                <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                Loading users from database...
+              </div>
+            ) : users.length === 0 ? (
+              <div className="p-8 text-center text-xs text-wellqc-muted font-mono">
+                No database users found yet.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead className="bg-wellqc-card border-b border-wellqc-border text-slate-400 uppercase text-[10px]">
+                    <tr>
+                      <th className="p-4">User Name</th>
+                      <th className="p-4">Email Address</th>
+                      <th className="p-4">Department</th>
+                      <th className="p-4">Assigned Role</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-wellqc-border text-slate-200">
+                    {users.map((user) => (
+                      <tr key={user.id} className="hover:bg-wellqc-card/60 transition-colors">
+                        <td className="p-4 font-bold text-white">{user.name}</td>
+                        <td className="p-4 text-slate-400">{user.email}</td>
+                        <td className="p-4 text-slate-300">{user.department}</td>
+                        <td className="p-4">
+                          <span className="px-2.5 py-1 rounded text-xs font-bold bg-purple-500/10 text-purple-300 border border-purple-500/30">
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span className="text-emerald-400 font-bold text-[11px]">{user.status}</span>
+                        </td>
+                        <td className="p-4 text-right">
+                          <button className="px-3 py-1 rounded bg-wellqc-card hover:bg-purple-500/20 text-purple-300 text-xs border border-wellqc-border">
+                            Edit Role
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Tab 2: API Access Tokens */}
         {activeTab === "TOKENS" && (
-          <div className="bg-wellqc-panel border border-wellqc-border p-6 rounded-2xl space-y-4 font-mono text-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-wellqc-border">
-              <h3 className="text-base font-bold text-white">Active Enterprise API Authentication Tokens</h3>
-              <button className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">
-                + Generate API Token
-              </button>
-            </div>
-            <div className="p-4 bg-wellqc-card border border-wellqc-border rounded-xl flex items-center justify-between">
-              <div>
-                <div className="font-bold text-white text-sm">SLB Techlog Pipeline Token</div>
-                <div className="text-wellqc-muted text-xs">token_live_wqc_99a8b7c6d5e4...</div>
-              </div>
-              <span className="text-emerald-400 text-xs">Active</span>
-            </div>
-          </div>
+          <AdminEmptyPanel
+            title="Active Enterprise API Authentication Tokens"
+            action="+ Generate API Token"
+            message="API token records will appear here after token creation is connected."
+          />
         )}
 
-        {/* Tab 3: Webhooks */}
         {activeTab === "WEBHOOKS" && (
-          <div className="bg-wellqc-panel border border-wellqc-border p-6 rounded-2xl space-y-4 font-mono text-xs">
-            <div className="flex items-center justify-between pb-3 border-b border-wellqc-border">
-              <h3 className="text-base font-bold text-white">Configured Webhook Endpoints</h3>
-              <button className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold">
-                + Register Webhook
-              </button>
-            </div>
-            <div className="p-4 bg-wellqc-card border border-wellqc-border rounded-xl flex items-center justify-between">
-              <div>
-                <div className="font-bold text-white text-sm">https://api.petro-analytics.com/v1/well-events</div>
-                <div className="text-wellqc-muted text-xs">Subscribed Events: las.uploaded, qa.completed, anomaly.flagged</div>
-              </div>
-              <span className="text-emerald-400 text-xs">Connected (200 OK)</span>
-            </div>
-          </div>
+          <AdminEmptyPanel
+            title="Configured Webhook Endpoints"
+            action="+ Register Webhook"
+            message="Webhook endpoint records will appear here after webhook registration is connected."
+          />
         )}
       </div>
     </AppShell>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all whitespace-nowrap ${
+        active ? "bg-purple-600/20 text-purple-300 border border-purple-500/40" : "text-slate-400 hover:text-white"
+      }`}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function AdminEmptyPanel({ title, action, message }: { title: string; action: string; message: string }) {
+  return (
+    <div className="bg-wellqc-panel border border-wellqc-border p-6 rounded-2xl space-y-4 font-mono text-xs">
+      <div className="flex items-center justify-between pb-3 border-b border-wellqc-border">
+        <h3 className="text-base font-bold text-white">{title}</h3>
+        <button className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">
+          {action}
+        </button>
+      </div>
+      <div className="p-4 bg-wellqc-card border border-wellqc-border rounded-xl text-wellqc-muted">
+        {message}
+      </div>
+    </div>
   );
 }

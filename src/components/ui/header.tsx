@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ActivityListItem } from "@/lib/api-types";
 import { Search, Bell, Shield, User, ChevronDown, Check, Globe } from "lucide-react";
 
 interface HeaderProps {
@@ -16,6 +17,32 @@ interface HeaderProps {
 export function Header({ currentRole, onRoleChange, currentUser }: HeaderProps) {
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [activities, setActivities] = useState<ActivityListItem[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadActivities() {
+      try {
+        const response = await fetch("/api/activity", { cache: "no-store" });
+        const data = await response.json();
+
+        if (!cancelled && response.ok) {
+          setActivities((data.activities || []).slice(0, 3));
+        }
+      } catch {
+        if (!cancelled) {
+          setActivities([]);
+        }
+      }
+    }
+
+    loadActivities();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const roles = [
     { id: "ADMIN", name: "Administrator", color: "text-purple-400 border-purple-500/40 bg-purple-500/10" },
@@ -95,24 +122,31 @@ export function Header({ currentRole, onRoleChange, currentUser }: HeaderProps) 
             className="p-2 text-slate-400 hover:text-slate-100 hover:bg-wellqc-card rounded-lg transition-colors relative"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            {activities.length > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            )}
           </button>
 
           {notificationsOpen && (
             <div className="absolute right-0 mt-2 w-80 bg-wellqc-card border border-wellqc-border rounded-xl shadow-2xl p-3 z-50">
               <div className="flex items-center justify-between pb-2 border-b border-wellqc-border text-xs font-semibold text-white">
-                <span>Recent System Alerts</span>
-                <span className="text-[10px] font-mono text-cyan-400">3 New</span>
+                <span>Recent Database Activity</span>
+                <span className="text-[10px] font-mono text-cyan-400">{activities.length} New</span>
               </div>
               <div className="py-2 space-y-2 text-xs">
-                <div className="p-2 rounded-lg bg-wellqc-panel/60 border border-amber-500/30">
-                  <div className="font-semibold text-amber-400">RHOB Spike Warning</div>
-                  <div className="text-slate-400 text-[11px]">WOLFCAMP_PROD_01 density anomaly at 10,010 ft.</div>
-                </div>
-                <div className="p-2 rounded-lg bg-wellqc-panel/60 border border-emerald-500/30">
-                  <div className="font-semibold text-emerald-400">Standardisation Completed</div>
-                  <div className="text-slate-400 text-[11px]">7 curves mapped for MISSISSIPPI_CANYON.</div>
-                </div>
+                {activities.length === 0 ? (
+                  <div className="p-2 rounded-lg bg-wellqc-panel/60 border border-wellqc-border">
+                    <div className="font-semibold text-slate-300">No activity yet</div>
+                    <div className="text-slate-400 text-[11px]">Committed uploads will appear here.</div>
+                  </div>
+                ) : (
+                  activities.map((activity) => (
+                    <div key={activity.id} className="p-2 rounded-lg bg-wellqc-panel/60 border border-cyan-500/30">
+                      <div className="font-semibold text-cyan-300">{activity.action.replace(/_/g, " ")}</div>
+                      <div className="text-slate-400 text-[11px]">{activity.details}</div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}

@@ -7,9 +7,9 @@ import { Header } from "@/components/ui/header";
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [currentRole, setCurrentRole] = useState("PETROPHYSICIST");
   const [currentUser] = useState({
-    name: "Alexandre Dubois",
-    email: "alexandre.dubois@petro-analytics.com",
-    department: "Global Subsurface QA",
+    name: "WellQC User",
+    email: "user@wellqc.local",
+    department: "Workspace QA",
   });
 
   return (

@@ -1,39 +1,68 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import Link from "next/link";
 import { WellLogViewer } from "@/components/well-log/log-viewer";
-import { SAMPLE_LAS_FILES } from "@/lib/sample-las-files";
-import { parseLASContent } from "@/lib/las/parser";
-import { analyzeWellLogQuality } from "@/lib/las/quality-engine";
-import { generateAIAnalysis } from "@/lib/las/ai-analyzer";
+import { WellDetailResponse } from "@/lib/api-types";
 import {
   ArrowLeft,
   Database,
-  Award,
   Layers,
-  MapPin,
-  Building2,
-  FileText,
   Sparkles,
   Download,
-  AlertTriangle,
+  RefreshCw,
+  UploadCloud,
 } from "lucide-react";
 
 export default function WellDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  
-  // Parse sample LAS for interactive deep inspection
-  const sampleObj = SAMPLE_LAS_FILES[0];
-  const parsedLAS = parseLASContent(sampleObj.content);
-  const qaResult = analyzeWellLogQuality(parsedLAS);
-  const aiOutput = generateAIAnalysis(parsedLAS, qaResult);
+  const { id } = use(params);
+  const [detail, setDetail] = useState<WellDetailResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDetail() {
+      setIsLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch(`/api/wells/${id}`, { cache: "no-store" });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Unable to load well detail.");
+        }
+
+        if (!cancelled) {
+          setDetail(data);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Unable to load well detail.");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadDetail();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const well = detail?.well;
+  const hasLogData = detail ? detail.curvesData.depth.length > 0 : false;
 
   return (
     <AppShell>
       <div className="space-y-6">
-        {/* Back Link */}
         <div>
           <Link
             href="/wells"
@@ -44,71 +73,109 @@ export default function WellDetailPage({ params }: { params: Promise<{ id: strin
           </Link>
         </div>
 
-        {/* Well Title Banner */}
-        <div className="bg-wellqc-panel border border-wellqc-border p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center space-x-3">
-              <span className="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-              <h1 className="text-2xl font-black text-white font-mono">WOLFCAMP_PROD_01</h1>
-              <span className="px-2.5 py-0.5 rounded text-xs font-mono font-bold badge-excellent">
-                94 / 100 EXCELLENT
-              </span>
+        {isLoading && (
+          <div className="p-8 bg-wellqc-panel border border-wellqc-border rounded-2xl text-center text-cyan-300 text-xs font-mono flex items-center justify-center">
+            <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+            Loading saved well data...
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 text-red-200 rounded-xl px-4 py-3 text-xs font-mono">
+            {error}
+          </div>
+        )}
+
+        {well && (
+          <>
+            <div className="bg-wellqc-panel border border-wellqc-border p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className={`w-3 h-3 rounded-full ${well.qualityScore >= 75 ? "bg-emerald-400" : "bg-amber-400"}`} />
+                  <h1 className="text-2xl font-black text-white font-mono">{well.name}</h1>
+                  <span className={`px-2.5 py-0.5 rounded text-xs font-mono font-bold ${
+                    well.qualityScore >= 90 ? "badge-excellent" :
+                    well.qualityScore >= 75 ? "badge-good" :
+                    well.qualityScore >= 50 ? "badge-poor" : "badge-critical"
+                  }`}>
+                    {well.qualityScore} / 100 {well.qualityGrade}
+                  </span>
+                </div>
+                <p className="text-xs text-wellqc-muted font-mono">
+                  API/UWI: {well.apiNo} | Operator: {well.operatorName} | Field: {well.fieldName} | Basin: {well.basin}
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Link
+                  href="/reports"
+                  className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-wellqc-card border border-wellqc-border hover:border-cyan-500/50 text-cyan-300 font-semibold text-xs transition-all"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Open Reports</span>
+                </Link>
+              </div>
             </div>
-            <p className="text-xs text-wellqc-muted font-mono">
-              API/UWI: 42-389-34190-00 | Operator: ExxonMobil | Field: Wolfcamp Permian | Basin: Delaware Basin
-            </p>
-          </div>
 
-          <div className="flex items-center space-x-3">
-            <Link
-              href="/reports"
-              className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-wellqc-card border border-wellqc-border hover:border-cyan-500/50 text-cyan-300 font-semibold text-xs transition-all"
-            >
-              <Download className="w-4 h-4" />
-              <span>Export PDF Audit Report</span>
-            </Link>
-          </div>
-        </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <SpecCard label="Latitude / Longitude" value={`${well.latitude.toFixed(4)}, ${well.longitude.toFixed(4)}`} />
+              <SpecCard label="Elevation (KB)" value={`${well.elevFt.toLocaleString()} FT`} />
+              <SpecCard label="Total Depth (TD)" value={`${well.tdFt.toLocaleString()} FT`} />
+              <SpecCard label="Active Curve Suite" value={`${well.curveCount} Log Channels`} accent />
+            </div>
 
-        {/* Technical Specs Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-wellqc-card border border-wellqc-border p-4 rounded-xl space-y-1">
-            <span className="text-[10px] font-mono uppercase text-wellqc-muted">Latitude / Longitude</span>
-            <div className="text-sm font-bold text-white font-mono">31.7500° N, -103.5000° W</div>
-          </div>
-          <div className="bg-wellqc-card border border-wellqc-border p-4 rounded-xl space-y-1">
-            <span className="text-[10px] font-mono uppercase text-wellqc-muted">Elevation (KB)</span>
-            <div className="text-sm font-bold text-white font-mono">2,850 FT</div>
-          </div>
-          <div className="bg-wellqc-card border border-wellqc-border p-4 rounded-xl space-y-1">
-            <span className="text-[10px] font-mono uppercase text-wellqc-muted">Total Depth (TD)</span>
-            <div className="text-sm font-bold text-white font-mono">14,200 FT</div>
-          </div>
-          <div className="bg-wellqc-card border border-wellqc-border p-4 rounded-xl space-y-1">
-            <span className="text-[10px] font-mono uppercase text-wellqc-muted">Active Curve Suite</span>
-            <div className="text-sm font-bold text-cyan-400 font-mono">7 Log Channels</div>
-          </div>
-        </div>
+            <div className="p-4 bg-wellqc-card border border-cyan-500/30 rounded-xl space-y-2">
+              <div className="flex items-center space-x-2 text-xs font-bold text-cyan-300">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <span>AI Petrophysical Summary</span>
+              </div>
+              <p className="text-xs text-slate-300 font-mono">{detail.aiSummary}</p>
+              {detail.recommendations.length > 0 && (
+                <ul className="list-disc list-inside text-xs text-slate-400 font-mono space-y-1">
+                  {detail.recommendations.map((recommendation) => (
+                    <li key={recommendation}>{recommendation}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
-        {/* AI Insight Box */}
-        <div className="p-4 bg-wellqc-card border border-cyan-500/30 rounded-xl space-y-2">
-          <div className="flex items-center space-x-2 text-xs font-bold text-cyan-300">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span>AI Petrophysical Summary</span>
-          </div>
-          <p className="text-xs text-slate-300 font-mono">{aiOutput.summary}</p>
-        </div>
-
-        {/* Interactive Multi-Track Log Viewer */}
-        <WellLogViewer
-          wellName="WOLFCAMP_PROD_01"
-          depthUnit={parsedLAS.wellInfo.depthUnit}
-          startDepth={parsedLAS.wellInfo.startDepth}
-          stopDepth={parsedLAS.wellInfo.stopDepth}
-          curvesData={parsedLAS.data}
-          anomalies={qaResult.anomalies}
-        />
+            {hasLogData ? (
+              <WellLogViewer
+                wellName={well.name}
+                depthUnit={well.depthUnit}
+                startDepth={detail.curvesData.depth[0] ?? 0}
+                stopDepth={detail.curvesData.depth[detail.curvesData.depth.length - 1] ?? 0}
+                curvesData={detail.curvesData}
+                anomalies={detail.anomalies}
+              />
+            ) : (
+              <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl p-8 text-center space-y-3">
+                <Database className="w-8 h-8 text-cyan-400 mx-auto" />
+                <h2 className="text-base font-bold text-white">No LAS curves committed for this well</h2>
+                <p className="text-xs text-wellqc-muted font-mono">
+                  Upload and validate a LAS file, then commit it to render curves and QA anomalies here.
+                </p>
+                <Link
+                  href="/upload"
+                  className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs"
+                >
+                  <UploadCloud className="w-4 h-4" />
+                  <span>Upload LAS</span>
+                </Link>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </AppShell>
+  );
+}
+
+function SpecCard({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="bg-wellqc-card border border-wellqc-border p-4 rounded-xl space-y-1">
+      <span className="text-[10px] font-mono uppercase text-wellqc-muted">{label}</span>
+      <div className={`text-sm font-bold font-mono ${accent ? "text-cyan-400" : "text-white"}`}>{value}</div>
+    </div>
   );
 }

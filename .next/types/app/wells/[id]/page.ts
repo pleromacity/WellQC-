@@ -1,4 +1,4 @@
-// File: C:\Users\Ekwebelam C Williams\Desktop\WellQC+\src\app\wells\[id]\page.tsx
+// File: C:\Users\Ekwebelam C Williams\Documents\WellQC+\src\app\wells\[id]\page.tsx
 import * as entry from '../../../../../src/app/wells/[id]/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

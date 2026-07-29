@@ -361,6 +361,33 @@ function Header(param) {
     _s();
     const [roleDropdownOpen, setRoleDropdownOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [notificationsOpen, setNotificationsOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [activities, setActivities] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "Header.useEffect": ()=>{
+            let cancelled = false;
+            async function loadActivities() {
+                try {
+                    const response = await fetch("/api/activity", {
+                        cache: "no-store"
+                    });
+                    const data = await response.json();
+                    if (!cancelled && response.ok) {
+                        setActivities((data.activities || []).slice(0, 3));
+                    }
+                } catch (e) {
+                    if (!cancelled) {
+                        setActivities([]);
+                    }
+                }
+            }
+            loadActivities();
+            return ({
+                "Header.useEffect": ()=>{
+                    cancelled = true;
+                }
+            })["Header.useEffect"];
+        }
+    }["Header.useEffect"], []);
     const roles = [
         {
             id: "ADMIN",
@@ -401,7 +428,7 @@ function Header(param) {
                             className: "w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
                         }, void 0, false, {
                             fileName: "[project]/src/components/ui/header.tsx",
-                            lineNumber: 35,
+                            lineNumber: 62,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -410,18 +437,18 @@ function Header(param) {
                             className: "w-full bg-wellqc-card border border-wellqc-border rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition-all font-mono"
                         }, void 0, false, {
                             fileName: "[project]/src/components/ui/header.tsx",
-                            lineNumber: 36,
+                            lineNumber: 63,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/ui/header.tsx",
-                    lineNumber: 34,
+                    lineNumber: 61,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/ui/header.tsx",
-                lineNumber: 33,
+                lineNumber: 60,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -434,20 +461,20 @@ function Header(param) {
                                 className: "w-3.5 h-3.5 text-cyan-400"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/ui/header.tsx",
-                                lineNumber: 48,
+                                lineNumber: 75,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                 children: "Global Basin Portal"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/ui/header.tsx",
-                                lineNumber: 49,
+                                lineNumber: 76,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/ui/header.tsx",
-                        lineNumber: 47,
+                        lineNumber: 74,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -461,7 +488,7 @@ function Header(param) {
                                         className: "w-3.5 h-3.5"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 58,
+                                        lineNumber: 85,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -471,20 +498,20 @@ function Header(param) {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 59,
+                                        lineNumber: 86,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
                                         className: "w-3.5 h-3.5 opacity-70"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 60,
+                                        lineNumber: 87,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/ui/header.tsx",
-                                lineNumber: 54,
+                                lineNumber: 81,
                                 columnNumber: 11
                             }, this),
                             roleDropdownOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -495,7 +522,7 @@ function Header(param) {
                                         children: "Simulate Role Access (RBAC)"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 65,
+                                        lineNumber: 92,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -511,37 +538,37 @@ function Header(param) {
                                                         children: r.name
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/ui/header.tsx",
-                                                        lineNumber: 82,
+                                                        lineNumber: 109,
                                                         columnNumber: 21
                                                     }, this),
                                                     currentRole === r.id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
                                                         className: "w-3.5 h-3.5 text-cyan-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/ui/header.tsx",
-                                                        lineNumber: 83,
+                                                        lineNumber: 110,
                                                         columnNumber: 46
                                                     }, this)
                                                 ]
                                             }, r.id, true, {
                                                 fileName: "[project]/src/components/ui/header.tsx",
-                                                lineNumber: 70,
+                                                lineNumber: 97,
                                                 columnNumber: 19
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 68,
+                                        lineNumber: 95,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/ui/header.tsx",
-                                lineNumber: 64,
+                                lineNumber: 91,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/ui/header.tsx",
-                        lineNumber: 53,
+                        lineNumber: 80,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -555,20 +582,20 @@ function Header(param) {
                                         className: "w-4 h-4"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 97,
+                                        lineNumber: 124,
                                         columnNumber: 13
                                     }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    activities.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         className: "absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-cyan-400 animate-pulse"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 98,
-                                        columnNumber: 13
+                                        lineNumber: 126,
+                                        columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/ui/header.tsx",
-                                lineNumber: 93,
+                                lineNumber: 120,
                                 columnNumber: 11
                             }, this),
                             notificationsOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -578,95 +605,95 @@ function Header(param) {
                                         className: "flex items-center justify-between pb-2 border-b border-wellqc-border text-xs font-semibold text-white",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                children: "Recent System Alerts"
+                                                children: "Recent Database Activity"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/ui/header.tsx",
-                                                lineNumber: 104,
+                                                lineNumber: 133,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 className: "text-[10px] font-mono text-cyan-400",
-                                                children: "3 New"
-                                            }, void 0, false, {
+                                                children: [
+                                                    activities.length,
+                                                    " New"
+                                                ]
+                                            }, void 0, true, {
                                                 fileName: "[project]/src/components/ui/header.tsx",
-                                                lineNumber: 105,
+                                                lineNumber: 134,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 103,
+                                        lineNumber: 132,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "py-2 space-y-2 text-xs",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "p-2 rounded-lg bg-wellqc-panel/60 border border-amber-500/30",
+                                        children: activities.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "p-2 rounded-lg bg-wellqc-panel/60 border border-wellqc-border",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "font-semibold text-slate-300",
+                                                    children: "No activity yet"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/ui/header.tsx",
+                                                    lineNumber: 139,
+                                                    columnNumber: 21
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "text-slate-400 text-[11px]",
+                                                    children: "Committed uploads will appear here."
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/ui/header.tsx",
+                                                    lineNumber: 140,
+                                                    columnNumber: 21
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/ui/header.tsx",
+                                            lineNumber: 138,
+                                            columnNumber: 19
+                                        }, this) : activities.map((activity)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "p-2 rounded-lg bg-wellqc-panel/60 border border-cyan-500/30",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "font-semibold text-amber-400",
-                                                        children: "RHOB Spike Warning"
+                                                        className: "font-semibold text-cyan-300",
+                                                        children: activity.action.replace(/_/g, " ")
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/ui/header.tsx",
-                                                        lineNumber: 109,
-                                                        columnNumber: 19
+                                                        lineNumber: 145,
+                                                        columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "text-slate-400 text-[11px]",
-                                                        children: "WOLFCAMP_PROD_01 density anomaly at 10,010 ft."
+                                                        children: activity.details
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/ui/header.tsx",
-                                                        lineNumber: 110,
-                                                        columnNumber: 19
+                                                        lineNumber: 146,
+                                                        columnNumber: 23
                                                     }, this)
                                                 ]
-                                            }, void 0, true, {
+                                            }, activity.id, true, {
                                                 fileName: "[project]/src/components/ui/header.tsx",
-                                                lineNumber: 108,
-                                                columnNumber: 17
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "p-2 rounded-lg bg-wellqc-panel/60 border border-emerald-500/30",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "font-semibold text-emerald-400",
-                                                        children: "Standardisation Completed"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/components/ui/header.tsx",
-                                                        lineNumber: 113,
-                                                        columnNumber: 19
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "text-slate-400 text-[11px]",
-                                                        children: "7 curves mapped for MISSISSIPPI_CANYON."
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/components/ui/header.tsx",
-                                                        lineNumber: 114,
-                                                        columnNumber: 19
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/components/ui/header.tsx",
-                                                lineNumber: 112,
-                                                columnNumber: 17
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
+                                                lineNumber: 144,
+                                                columnNumber: 21
+                                            }, this))
+                                    }, void 0, false, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 107,
+                                        lineNumber: 136,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/ui/header.tsx",
-                                lineNumber: 102,
+                                lineNumber: 131,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/ui/header.tsx",
-                        lineNumber: 92,
+                        lineNumber: 119,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -677,7 +704,7 @@ function Header(param) {
                                 children: currentUser.name.charAt(0)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/ui/header.tsx",
-                                lineNumber: 123,
+                                lineNumber: 157,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -688,7 +715,7 @@ function Header(param) {
                                         children: currentUser.name
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 127,
+                                        lineNumber: 161,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -696,35 +723,35 @@ function Header(param) {
                                         children: currentUser.department
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ui/header.tsx",
-                                        lineNumber: 128,
+                                        lineNumber: 162,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/ui/header.tsx",
-                                lineNumber: 126,
+                                lineNumber: 160,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/ui/header.tsx",
-                        lineNumber: 122,
+                        lineNumber: 156,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/ui/header.tsx",
-                lineNumber: 45,
+                lineNumber: 72,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/ui/header.tsx",
-        lineNumber: 31,
+        lineNumber: 58,
         columnNumber: 5
     }, this);
 }
-_s(Header, "0jj63ZFfos+pwWRXzCv7qvrJaPY=");
+_s(Header, "8T3eSVm+gP2hx6ra58mTwUOxWuU=");
 _c = Header;
 var _c;
 __turbopack_context__.k.register(_c, "Header");
@@ -754,9 +781,9 @@ function AppShell(param) {
     _s();
     const [currentRole, setCurrentRole] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("PETROPHYSICIST");
     const [currentUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
-        name: "Alexandre Dubois",
-        email: "alexandre.dubois@petro-analytics.com",
-        department: "Global Subsurface QA"
+        name: "WellQC User",
+        email: "user@wellqc.local",
+        department: "Workspace QA"
     });
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "flex min-h-screen bg-wellqc-dark",
@@ -801,7 +828,7 @@ function AppShell(param) {
         columnNumber: 5
     }, this);
 }
-_s(AppShell, "YfYLimRIwUNeZCtpwbwoZc9XrEE=");
+_s(AppShell, "KcEyCIV89aFKUy2AvlNQkSAMhvQ=");
 _c = AppShell;
 var _c;
 __turbopack_context__.k.register(_c, "AppShell");
@@ -825,6 +852,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$spreadsheet$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileSpreadsheet$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/file-spreadsheet.js [app-client] (ecmascript) <export default as FileSpreadsheet>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/download.js [app-client] (ecmascript) <export default as Download>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/file-text.js [app-client] (ecmascript) <export default as FileText>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/refresh-cw.js [app-client] (ecmascript) <export default as RefreshCw>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$database$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Database$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/database.js [app-client] (ecmascript) <export default as Database>");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
@@ -834,157 +863,228 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+function downloadTextFile(fileName, content, mimeType) {
+    const blob = new Blob([
+        content
+    ], {
+        type: mimeType
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.setTimeout(()=>URL.revokeObjectURL(url), 0);
+}
 function ReportsPage() {
     _s();
-    const [selectedWell, setSelectedWell] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("WOLFCAMP_PROD_01");
-    const generatePDFReport = ()=>{
-        const doc = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jspdf$2f$dist$2f$jspdf$2e$es$2e$min$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsPDF"]();
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(18);
-        doc.text("WellQC+ | Well Log Quality Assurance Report", 14, 20);
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.text("Well Name: ".concat(selectedWell), 14, 28);
-        doc.text("Generated: ".concat(new Date().toLocaleString()), 14, 34);
-        doc.text("Platform Grade: EXCELLENT (94 / 100)", 14, 40);
-        doc.line(14, 45, 196, 45);
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.text("Summary of Petrophysical QA Checks", 14, 54);
-        doc.autoTable({
-            startY: 60,
-            head: [
-                [
-                    "Curve",
-                    "Standard Mnemonic",
-                    "Unit",
-                    "Null %",
-                    "Health Score",
-                    "Status"
-                ]
-            ],
-            body: [
-                [
-                    "GR",
-                    "GR (Gamma Ray)",
-                    "GAPI",
-                    "0.0%",
-                    "98/100",
-                    "EXCELLENT"
-                ],
-                [
-                    "RHOB",
-                    "RHOB (Bulk Density)",
-                    "G/CC",
-                    "0.0%",
-                    "92/100",
-                    "GOOD"
-                ],
-                [
-                    "NPHI",
-                    "NPHI (Neutron Porosity)",
-                    "V/V",
-                    "0.0%",
-                    "94/100",
-                    "EXCELLENT"
-                ],
-                [
-                    "RT",
-                    "RT (Deep Resistivity)",
-                    "OHMM",
-                    "0.0%",
-                    "95/100",
-                    "EXCELLENT"
-                ],
-                [
-                    "DT",
-                    "DT (Sonic Travel Time)",
-                    "US/F",
-                    "0.0%",
-                    "90/100",
-                    "EXCELLENT"
-                ]
-            ],
-            headStyles: {
-                fillStyle: "F",
-                fillColor: [
-                    19,
-                    27,
-                    46
-                ]
+    const [wells, setWells] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [selectedWellId, setSelectedWellId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
+    const [isExporting, setIsExporting] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "ReportsPage.useEffect": ()=>{
+            let cancelled = false;
+            async function loadWells() {
+                try {
+                    const response = await fetch("/api/wells", {
+                        cache: "no-store"
+                    });
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.error || "Unable to load saved wells.");
+                    }
+                    const loadedWells = data.wells || [];
+                    if (!cancelled) {
+                        setWells(loadedWells);
+                        setSelectedWellId({
+                            "ReportsPage.useEffect.loadWells": (current)=>{
+                                var _loadedWells_;
+                                return current || ((_loadedWells_ = loadedWells[0]) === null || _loadedWells_ === void 0 ? void 0 : _loadedWells_.id) || "";
+                            }
+                        }["ReportsPage.useEffect.loadWells"]);
+                    }
+                } catch (err) {
+                    if (!cancelled) {
+                        setError(err instanceof Error ? err.message : "Unable to load saved wells.");
+                    }
+                } finally{
+                    if (!cancelled) {
+                        setIsLoading(false);
+                    }
+                }
             }
+            loadWells();
+            return ({
+                "ReportsPage.useEffect": ()=>{
+                    cancelled = true;
+                }
+            })["ReportsPage.useEffect"];
+        }
+    }["ReportsPage.useEffect"], []);
+    const selectedWell = wells.find((well)=>well.id === selectedWellId);
+    const canExport = Boolean(selectedWellId && (selectedWell === null || selectedWell === void 0 ? void 0 : selectedWell.latestLasFileId));
+    const loadDetail = async ()=>{
+        if (!selectedWellId) {
+            throw new Error("Select a committed well first.");
+        }
+        const response = await fetch("/api/wells/".concat(selectedWellId), {
+            cache: "no-store"
         });
-        doc.save("".concat(selectedWell, "_QA_Audit_Report.pdf"));
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || "Unable to load selected well.");
+        }
+        return data;
     };
-    const generateCSVReport = ()=>{
-        const csvContent = "Curve,Standard Mnemonic,Unit,Null Percentage,Health Score,Status\n" + "GR,GR,GAPI,0.0%,98,EXCELLENT\n" + "RHOB,RHOB,G/CC,0.0%,92,GOOD\n" + "NPHI,NPHI,V/V,0.0%,94,EXCELLENT\n" + "RT,RT,OHMM,0.0%,95,EXCELLENT\n";
-        const blob = new Blob([
-            csvContent
-        ], {
-            type: "text/csv;charset=utf-8;"
+    const generatePDFReport = async ()=>{
+        await runExport(async ()=>{
+            var _lastAutoTable;
+            const detail = await loadDetail();
+            const doc = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jspdf$2f$dist$2f$jspdf$2e$es$2e$min$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsPDF"]();
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.text("WellQC+ | Well Log Quality Assurance Report", 14, 20);
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text("Well Name: ".concat(detail.well.name), 14, 28);
+            doc.text("API/UWI: ".concat(detail.well.apiNo), 14, 34);
+            doc.text("Generated: ".concat(new Date().toLocaleString()), 14, 40);
+            doc.text("Platform Grade: ".concat(detail.well.qualityGrade, " (").concat(detail.well.qualityScore, " / 100)"), 14, 46);
+            doc.line(14, 52, 196, 52);
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("Committed LAS Summary", 14, 62);
+            doc.autoTable({
+                startY: 68,
+                head: [
+                    [
+                        "Property",
+                        "Value"
+                    ]
+                ],
+                body: [
+                    [
+                        "Operator",
+                        detail.well.operatorName
+                    ],
+                    [
+                        "Field",
+                        detail.well.fieldName
+                    ],
+                    [
+                        "Basin",
+                        detail.well.basin
+                    ],
+                    [
+                        "Latest LAS",
+                        detail.well.latestLasFileName || "None"
+                    ],
+                    [
+                        "Curve Count",
+                        String(detail.well.curveCount)
+                    ],
+                    [
+                        "Point Count",
+                        detail.well.pointCount.toLocaleString()
+                    ],
+                    [
+                        "Anomaly Count",
+                        String(detail.well.anomalyCount)
+                    ]
+                ],
+                headStyles: {
+                    fillColor: [
+                        19,
+                        27,
+                        46
+                    ]
+                }
+            });
+            const finalY = ((_lastAutoTable = doc.lastAutoTable) === null || _lastAutoTable === void 0 ? void 0 : _lastAutoTable.finalY) || 120;
+            doc.setFont("helvetica", "bold");
+            doc.text("AI Summary", 14, finalY + 12);
+            doc.setFont("helvetica", "normal");
+            doc.text(doc.splitTextToSize(detail.aiSummary, 180), 14, finalY + 20);
+            doc.save("".concat(fileStem(detail.well.name), "_QA_Audit_Report.pdf"));
         });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", "".concat(selectedWell, "_QA_Report.csv"));
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     };
-    const generateExcelReport = ()=>{
-        const wsData = [
-            [
-                "Well Log Quality Audit Report - WellQC+"
-            ],
-            [
-                "Well Asset",
-                selectedWell
-            ],
-            [
-                "Overall Score",
-                "94 / 100"
-            ],
-            [],
-            [
-                "Curve",
-                "Standard Mnemonic",
-                "Unit",
-                "Null %",
-                "Health Score"
-            ],
-            [
-                "GR",
-                "GR",
-                "GAPI",
-                "0.0%",
-                98
-            ],
-            [
-                "RHOB",
-                "RHOB",
-                "G/CC",
-                "0.0%",
-                92
-            ],
-            [
-                "NPHI",
-                "NPHI",
-                "V/V",
-                "0.0%",
-                94
-            ],
-            [
-                "RT",
-                "RT",
-                "OHMM",
-                "0.0%",
-                95
-            ]
-        ];
-        const ws = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].aoa_to_sheet(wsData);
-        const wb = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].book_new();
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].book_append_sheet(wb, ws, "QA Summary");
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["writeFile"](wb, "".concat(selectedWell, "_QA_Report.xlsx"));
+    const generateExcelReport = async ()=>{
+        await runExport(async ()=>{
+            const detail = await loadDetail();
+            const curveNames = Object.keys(detail.curvesData.curves);
+            const summaryRows = [
+                [
+                    "Well Log Quality Audit Report - WellQC+"
+                ],
+                [
+                    "Well Asset",
+                    detail.well.name
+                ],
+                [
+                    "API/UWI",
+                    detail.well.apiNo
+                ],
+                [
+                    "Overall Score",
+                    "".concat(detail.well.qualityScore, " / 100")
+                ],
+                [
+                    "Grade",
+                    detail.well.qualityGrade
+                ],
+                [
+                    "Latest LAS",
+                    detail.well.latestLasFileName || ""
+                ],
+                [
+                    "Anomaly Count",
+                    detail.well.anomalyCount
+                ]
+            ];
+            const dataRows = [
+                [
+                    "DEPTH",
+                    ...curveNames
+                ],
+                ...detail.curvesData.depth.map((depth, index)=>[
+                        depth,
+                        ...curveNames.map((curveName)=>{
+                            var _detail_curvesData_curves_curveName;
+                            var _detail_curvesData_curves_curveName_index;
+                            return (_detail_curvesData_curves_curveName_index = (_detail_curvesData_curves_curveName = detail.curvesData.curves[curveName]) === null || _detail_curvesData_curves_curveName === void 0 ? void 0 : _detail_curvesData_curves_curveName[index]) !== null && _detail_curvesData_curves_curveName_index !== void 0 ? _detail_curvesData_curves_curveName_index : -999.25;
+                        })
+                    ])
+            ];
+            const wb = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].book_new();
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].book_append_sheet(wb, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].aoa_to_sheet(summaryRows), "QA Summary");
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].book_append_sheet(wb, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["utils"].aoa_to_sheet(dataRows), "Cleaned Curves");
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$xlsx$2f$xlsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["writeFile"](wb, "".concat(fileStem(detail.well.name), "_QA_Report.xlsx"));
+        });
+    };
+    const generateCleanedLASExport = async ()=>{
+        await runExport(async ()=>{
+            const detail = await loadDetail();
+            downloadTextFile("".concat(fileStem(detail.well.name), "_cleaned.las"), buildLasFromDetail(detail), "application/octet-stream;charset=utf-8");
+        });
+    };
+    const runExport = async (callback)=>{
+        if (!canExport) {
+            setError("Select a well with a committed LAS file before exporting.");
+            return;
+        }
+        setIsExporting(true);
+        setError("");
+        try {
+            await callback();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Export failed.");
+        } finally{
+            setIsExporting(false);
+        }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$layout$2f$app$2d$shell$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AppShell"], {
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -998,15 +1098,15 @@ function ReportsPage() {
                                 className: "flex items-center space-x-2",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     className: "px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/40",
-                                    children: "Module 07 — Reports & Downloads"
+                                    children: "Module 07 - Reports & Downloads"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 101,
+                                    lineNumber: 199,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/reports/page.tsx",
-                                lineNumber: 100,
+                                lineNumber: 198,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -1014,280 +1114,326 @@ function ReportsPage() {
                                 children: "Petrophysical Audit Reports & Cleaned LAS Export"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/reports/page.tsx",
-                                lineNumber: 105,
+                                lineNumber: 203,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "text-xs text-wellqc-muted font-mono mt-0.5",
-                                children: "Export formal PDF quality certificates, Excel data summaries, CSV audit logs, and standardized LAS files for petrophysical applications."
+                                children: "Export reports and cleaned LAS files from wells committed through the validation workflow."
                             }, void 0, false, {
                                 fileName: "[project]/src/app/reports/page.tsx",
-                                lineNumber: 108,
+                                lineNumber: 206,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/reports/page.tsx",
-                        lineNumber: 99,
+                        lineNumber: 197,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/reports/page.tsx",
-                    lineNumber: 98,
+                    lineNumber: 196,
                     columnNumber: 9
                 }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "bg-wellqc-panel border border-wellqc-border p-4 rounded-xl flex items-center justify-between",
-                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "flex items-center space-x-3 text-xs font-mono",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-slate-400",
-                                children: "Select Target Well Asset:"
-                            }, void 0, false, {
-                                fileName: "[project]/src/app/reports/page.tsx",
-                                lineNumber: 117,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                value: selectedWell,
-                                onChange: (e)=>setSelectedWell(e.target.value),
-                                className: "bg-wellqc-card border border-wellqc-border rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono font-bold",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                        value: "WOLFCAMP_PROD_01",
-                                        children: "WOLFCAMP_PROD_01 (API: 42-389-34190-00)"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/reports/page.tsx",
-                                        lineNumber: 123,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                        value: "MISSISSIPPI_CANYON_block544",
-                                        children: "MISSISSIPPI_CANYON_block544 (API: 60-812-90123-00)"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/reports/page.tsx",
-                                        lineNumber: 124,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                        value: "FORTIES_ALPHA_09",
-                                        children: "FORTIES_ALPHA_09 (API: UK-21-04A-09)"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/reports/page.tsx",
-                                        lineNumber: 125,
-                                        columnNumber: 15
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/reports/page.tsx",
-                                lineNumber: 118,
-                                columnNumber: 13
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/src/app/reports/page.tsx",
-                        lineNumber: 116,
-                        columnNumber: 11
-                    }, this)
+                error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "bg-red-500/10 border border-red-500/30 text-red-200 rounded-xl px-4 py-3 text-xs font-mono",
+                    children: error
                 }, void 0, false, {
                     fileName: "[project]/src/app/reports/page.tsx",
-                    lineNumber: 115,
-                    columnNumber: 9
+                    lineNumber: 213,
+                    columnNumber: 11
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "grid grid-cols-1 md:grid-cols-3 gap-6",
+                    className: "bg-wellqc-panel border border-wellqc-border p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "bg-wellqc-panel border border-wellqc-border p-6 rounded-2xl space-y-4 text-center",
+                            className: "flex items-center space-x-3 text-xs font-mono w-full",
                             children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto text-cyan-400",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
-                                        className: "w-6 h-6"
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    className: "text-slate-400",
+                                    children: "Select committed well:"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/reports/page.tsx",
+                                    lineNumber: 220,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                    value: selectedWellId,
+                                    onChange: (e)=>setSelectedWellId(e.target.value),
+                                    disabled: isLoading || wells.length === 0,
+                                    className: "flex-1 bg-wellqc-card border border-wellqc-border rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono font-bold",
+                                    children: wells.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                        value: "",
+                                        children: "No committed wells available"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/reports/page.tsx",
-                                        lineNumber: 134,
-                                        columnNumber: 15
-                                    }, this)
+                                        lineNumber: 228,
+                                        columnNumber: 17
+                                    }, this) : wells.map((well)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: well.id,
+                                            children: [
+                                                well.name,
+                                                " (",
+                                                well.apiNo,
+                                                ") - ",
+                                                well.latestLasFileName || "no LAS"
+                                            ]
+                                        }, well.id, true, {
+                                            fileName: "[project]/src/app/reports/page.tsx",
+                                            lineNumber: 231,
+                                            columnNumber: 19
+                                        }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 133,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                            className: "text-base font-bold text-white font-mono",
-                                            children: "PDF Executive Certificate"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/reports/page.tsx",
-                                            lineNumber: 137,
-                                            columnNumber: 15
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-xs text-wellqc-muted font-mono mt-1",
-                                            children: "Formal printable QA summary document with compliance sign-off blocks."
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/reports/page.tsx",
-                                            lineNumber: 138,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 136,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    onClick: generatePDFReport,
-                                    className: "w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs font-mono shadow-lg transition-all",
-                                    children: "Download PDF Report"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 142,
+                                    lineNumber: 221,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/reports/page.tsx",
-                            lineNumber: 132,
+                            lineNumber: 219,
                             columnNumber: 11
                         }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "bg-wellqc-panel border border-wellqc-border p-6 rounded-2xl space-y-4 text-center",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$spreadsheet$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileSpreadsheet$3e$__["FileSpreadsheet"], {
-                                        className: "w-6 h-6"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/reports/page.tsx",
-                                        lineNumber: 152,
-                                        columnNumber: 15
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 151,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                            className: "text-base font-bold text-white font-mono",
-                                            children: "Excel Audit Spreadsheet"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/reports/page.tsx",
-                                            lineNumber: 155,
-                                            columnNumber: 15
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-xs text-wellqc-muted font-mono mt-1",
-                                            children: "Multi-sheet workbook containing curve statistics, anomalies, and header metadata."
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/reports/page.tsx",
-                                            lineNumber: 156,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 154,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    onClick: generateExcelReport,
-                                    className: "w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs font-mono shadow-lg transition-all",
-                                    children: "Download Excel (.xlsx)"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 160,
-                                    columnNumber: 13
-                                }, this)
-                            ]
-                        }, void 0, true, {
+                        isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
+                            className: "w-4 h-4 text-cyan-400 animate-spin"
+                        }, void 0, false, {
                             fileName: "[project]/src/app/reports/page.tsx",
-                            lineNumber: 150,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "bg-wellqc-panel border border-wellqc-border p-6 rounded-2xl space-y-4 text-center",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mx-auto text-purple-400",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
-                                        className: "w-6 h-6"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/reports/page.tsx",
-                                        lineNumber: 170,
-                                        columnNumber: 15
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 169,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                            className: "text-base font-bold text-white font-mono",
-                                            children: "Cleaned Standardised LAS File"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/reports/page.tsx",
-                                            lineNumber: 173,
-                                            columnNumber: 15
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-xs text-wellqc-muted font-mono mt-1",
-                                            children: "Processed LAS 2.0 file ready for SLB Techlog, Petrel, and IP import."
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/reports/page.tsx",
-                                            lineNumber: 174,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 172,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    onClick: generateCSVReport,
-                                    className: "w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs font-mono shadow-lg transition-all",
-                                    children: "Download Cleaned LAS"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/reports/page.tsx",
-                                    lineNumber: 178,
-                                    columnNumber: 13
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/app/reports/page.tsx",
-                            lineNumber: 168,
-                            columnNumber: 11
+                            lineNumber: 238,
+                            columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/reports/page.tsx",
-                    lineNumber: 131,
+                    lineNumber: 218,
                     columnNumber: 9
+                }, this),
+                wells.length === 0 && !isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "bg-wellqc-panel border border-wellqc-border rounded-2xl p-8 text-center space-y-3",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$database$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Database$3e$__["Database"], {
+                            className: "w-8 h-8 text-cyan-400 mx-auto"
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/reports/page.tsx",
+                            lineNumber: 243,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                            className: "text-base font-bold text-white",
+                            children: "No saved LAS reports yet"
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/reports/page.tsx",
+                            lineNumber: 244,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-xs text-wellqc-muted font-mono",
+                            children: "Upload a LAS file, validate it, and commit it to the database before exporting reports."
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/reports/page.tsx",
+                            lineNumber: 245,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/reports/page.tsx",
+                    lineNumber: 242,
+                    columnNumber: 11
+                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "grid grid-cols-1 md:grid-cols-3 gap-6",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ExportCard, {
+                            icon: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
+                                className: "w-6 h-6"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/reports/page.tsx",
+                                lineNumber: 252,
+                                columnNumber: 21
+                            }, void 0),
+                            color: "cyan",
+                            title: "PDF Executive Certificate",
+                            description: "Formal printable QA summary document for the selected committed well.",
+                            buttonLabel: "Download PDF Report",
+                            onClick: generatePDFReport,
+                            disabled: !canExport || isExporting
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/reports/page.tsx",
+                            lineNumber: 251,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ExportCard, {
+                            icon: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$spreadsheet$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileSpreadsheet$3e$__["FileSpreadsheet"], {
+                                className: "w-6 h-6"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/reports/page.tsx",
+                                lineNumber: 261,
+                                columnNumber: 21
+                            }, void 0),
+                            color: "emerald",
+                            title: "Excel Audit Workbook",
+                            description: "Workbook containing QA summary and saved curve data rows.",
+                            buttonLabel: "Download Excel (.xlsx)",
+                            onClick: generateExcelReport,
+                            disabled: !canExport || isExporting
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/reports/page.tsx",
+                            lineNumber: 260,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ExportCard, {
+                            icon: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                className: "w-6 h-6"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/reports/page.tsx",
+                                lineNumber: 270,
+                                columnNumber: 21
+                            }, void 0),
+                            color: "purple",
+                            title: "Cleaned Standardised LAS File",
+                            description: "LAS 2.0 file reconstructed from committed standardised curves.",
+                            buttonLabel: isExporting ? "Preparing..." : "Download Cleaned LAS",
+                            onClick: generateCleanedLASExport,
+                            disabled: !canExport || isExporting
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/reports/page.tsx",
+                            lineNumber: 269,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/reports/page.tsx",
+                    lineNumber: 250,
+                    columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/reports/page.tsx",
-            lineNumber: 96,
+            lineNumber: 195,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/reports/page.tsx",
-        lineNumber: 95,
+        lineNumber: 194,
         columnNumber: 5
     }, this);
 }
-_s(ReportsPage, "HFqtHH7zxSU/dsAFvOWVr8Ao1Ew=");
+_s(ReportsPage, "fQ1kSYt806y+q7uOzpq3VMrb1bQ=");
 _c = ReportsPage;
-var _c;
+function ExportCard(param) {
+    let { icon, color, title, description, buttonLabel, onClick, disabled } = param;
+    const colors = {
+        cyan: "bg-cyan-500 hover:bg-cyan-400 text-slate-950",
+        emerald: "bg-emerald-500 hover:bg-emerald-400 text-slate-950",
+        purple: "bg-purple-600 hover:bg-purple-500 text-white"
+    };
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "bg-wellqc-panel border border-wellqc-border p-6 rounded-2xl space-y-4 text-center",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "w-12 h-12 rounded-2xl bg-wellqc-card border border-wellqc-border flex items-center justify-center mx-auto text-cyan-400",
+                children: icon
+            }, void 0, false, {
+                fileName: "[project]/src/app/reports/page.tsx",
+                lineNumber: 310,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                        className: "text-base font-bold text-white font-mono",
+                        children: title
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/reports/page.tsx",
+                        lineNumber: 314,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-xs text-wellqc-muted font-mono mt-1",
+                        children: description
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/reports/page.tsx",
+                        lineNumber: 315,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/app/reports/page.tsx",
+                lineNumber: 313,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                onClick: onClick,
+                disabled: disabled,
+                className: "w-full py-2.5 rounded-xl font-bold text-xs font-mono shadow-lg transition-all disabled:opacity-50 ".concat(colors[color]),
+                children: buttonLabel
+            }, void 0, false, {
+                fileName: "[project]/src/app/reports/page.tsx",
+                lineNumber: 317,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/src/app/reports/page.tsx",
+        lineNumber: 309,
+        columnNumber: 5
+    }, this);
+}
+_c1 = ExportCard;
+function buildLasFromDetail(detail) {
+    const curveNames = Object.keys(detail.curvesData.curves);
+    const depthUnit = detail.well.depthUnit || "FT";
+    const nullValue = -999.25;
+    var _detail_curvesData_depth_;
+    const firstDepth = (_detail_curvesData_depth_ = detail.curvesData.depth[0]) !== null && _detail_curvesData_depth_ !== void 0 ? _detail_curvesData_depth_ : 0;
+    var _detail_curvesData_depth_1;
+    const lastDepth = (_detail_curvesData_depth_1 = detail.curvesData.depth[detail.curvesData.depth.length - 1]) !== null && _detail_curvesData_depth_1 !== void 0 ? _detail_curvesData_depth_1 : firstDepth;
+    const lines = [
+        "~VERSION INFORMATION",
+        "VERS.                 2.0 : CWLS LOG ASCII STANDARD - VERSION 2.0",
+        "WRAP.                  NO : ONE LINE PER DEPTH STEP",
+        "~WELL INFORMATION",
+        "# Cleaned LAS exported from committed WellQC+ database record on ".concat(new Date().toISOString()),
+        formatHeaderLine("STRT", depthUnit, firstDepth, "START DEPTH"),
+        formatHeaderLine("STOP", depthUnit, lastDepth, "STOP DEPTH"),
+        formatHeaderLine("NULL", "", nullValue, "NULL VALUE"),
+        formatHeaderLine("WELL", "", detail.well.name, "WELL NAME"),
+        formatHeaderLine("COMP", "", detail.well.operatorName, "COMPANY"),
+        formatHeaderLine("FLD", "", detail.well.fieldName, "FIELD"),
+        formatHeaderLine("CTRY", "", detail.well.country, "COUNTRY"),
+        formatHeaderLine("API", "", detail.well.apiNo, "API / UWI"),
+        "~CURVE INFORMATION",
+        formatCurveLine("DEPT", depthUnit, "1 MEASURED DEPTH"),
+        ...curveNames.map((curveName, index)=>formatCurveLine(curveName, "", "".concat(index + 2, " STANDARDISED CURVE"))),
+        "~ASCII",
+        ...detail.curvesData.depth.map((depth, index)=>[
+                formatNumber(depth),
+                ...curveNames.map((curveName)=>{
+                    var _detail_curvesData_curves_curveName;
+                    var _detail_curvesData_curves_curveName_index;
+                    return formatNumber((_detail_curvesData_curves_curveName_index = (_detail_curvesData_curves_curveName = detail.curvesData.curves[curveName]) === null || _detail_curvesData_curves_curveName === void 0 ? void 0 : _detail_curvesData_curves_curveName[index]) !== null && _detail_curvesData_curves_curveName_index !== void 0 ? _detail_curvesData_curves_curveName_index : nullValue);
+                })
+            ].map((value)=>value.padStart(12)).join(" "))
+    ];
+    return "".concat(lines.join("\n"), "\n");
+}
+function formatHeaderLine(mnemonic, unit, value, description) {
+    const formattedValue = typeof value === "number" ? formatNumber(value) : value;
+    return "".concat(mnemonic, ".").concat(unit.padEnd(8), " ").concat(String(formattedValue).padStart(16), " : ").concat(description);
+}
+function formatCurveLine(mnemonic, unit, description) {
+    return "".concat(mnemonic, ".").concat(unit.padEnd(8), " : ").concat(description);
+}
+function formatNumber(value) {
+    if (!Number.isFinite(value)) return "-999.25";
+    const fixed = Math.abs(value) >= 1000 ? value.toFixed(4) : value.toFixed(5);
+    return fixed.replace(/\.?0+$/, "");
+}
+function fileStem(value) {
+    return value.trim().replace(/\.[^/.]+$/, "").replace(/[^a-z0-9_-]+/gi, "_").replace(/^_+|_+$/g, "").slice(0, 80) || "well_log";
+}
+var _c, _c1;
 __turbopack_context__.k.register(_c, "ReportsPage");
+__turbopack_context__.k.register(_c1, "ExportCard");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }

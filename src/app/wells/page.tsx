@@ -1,190 +1,179 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import Link from "next/link";
+import { WellListItem } from "@/lib/api-types";
 import {
   Database,
   Plus,
   Search,
   Filter,
-  MapPin,
-  Building2,
-  Globe,
-  Activity,
   ChevronRight,
   Trash2,
-  Edit,
   Eye,
+  RefreshCw,
+  UploadCloud,
 } from "lucide-react";
 
-interface WellRecord {
-  id: string;
-  apiNo: string;
-  name: string;
-  operatorName: string;
-  fieldName: string;
-  basin: string;
-  country: string;
-  latitude: number;
-  longitude: number;
-  elevFt: number;
-  tdFt: number;
-  status: string;
-  qualityScore: number;
-  qualityGrade: string;
-}
-
-const INITIAL_WELLS: WellRecord[] = [
-  {
-    id: "w-1",
-    apiNo: "42-389-34190-00",
-    name: "WOLFCAMP_PROD_01",
-    operatorName: "ExxonMobil",
-    fieldName: "Wolfcamp Permian",
-    basin: "Delaware Basin",
-    country: "USA",
-    latitude: 31.750,
-    longitude: -103.500,
-    elevFt: 2850,
-    tdFt: 14200,
-    status: "ACTIVE",
-    qualityScore: 94,
-    qualityGrade: "EXCELLENT",
-  },
-  {
-    id: "w-2",
-    apiNo: "60-812-90123-00",
-    name: "MISSISSIPPI_CANYON_block544",
-    operatorName: "Shell Offshore",
-    fieldName: "Mississippi Canyon GOM",
-    basin: "Gulf of Mexico",
-    country: "USA",
-    latitude: 28.210,
-    longitude: -89.420,
-    elevFt: 85,
-    tdFt: 22400,
-    status: "DRILLING",
-    qualityScore: 86,
-    qualityGrade: "GOOD",
-  },
-  {
-    id: "w-3",
-    apiNo: "UK-21-04A-09",
-    name: "FORTIES_ALPHA_09",
-    operatorName: "Chevron",
-    fieldName: "Forties Field",
-    basin: "North Sea Basin",
-    country: "UK",
-    latitude: 57.750,
-    longitude: 0.950,
-    elevFt: 140,
-    tdFt: 11800,
-    status: "ACTIVE",
-    qualityScore: 91,
-    qualityGrade: "EXCELLENT",
-  },
-  {
-    id: "w-4",
-    apiNo: "NG-54-90122-00",
-    name: "NIGER_DELTA_BLK12_04",
-    operatorName: "Chevron",
-    fieldName: "Niger Delta Deepwater",
-    basin: "Niger Delta Basin",
-    country: "Nigeria",
-    latitude: 4.320,
-    longitude: 6.180,
-    elevFt: 45,
-    tdFt: 16500,
-    status: "SHUT_IN",
-    qualityScore: 48,
-    qualityGrade: "CRITICAL",
-  },
-];
-
 export default function WellManagementPage() {
-  const [wells, setWells] = useState<WellRecord[]>(INITIAL_WELLS);
+  const [wells, setWells] = useState<WellListItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  // New Well Form State
   const [newWellName, setNewWellName] = useState("");
   const [newApiNo, setNewApiNo] = useState("");
-  const [newOperator, setNewOperator] = useState("ExxonMobil");
-  const [newField, setNewField] = useState("Wolfcamp Permian");
-  const [newBasin, setNewBasin] = useState("Delaware Basin");
-  const [newCountry, setNewCountry] = useState("USA");
-  const [newTd, setNewTd] = useState("12000");
+  const [newOperator, setNewOperator] = useState("");
+  const [newField, setNewField] = useState("");
+  const [newBasin, setNewBasin] = useState("");
+  const [newCountry, setNewCountry] = useState("");
+  const [newTd, setNewTd] = useState("");
 
-  const filteredWells = wells.filter((w) => {
+  useEffect(() => {
+    loadWells();
+  }, []);
+
+  const filteredWells = wells.filter((well) => {
+    const needle = searchQuery.toLowerCase();
     const matchesSearch =
-      w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      w.apiNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      w.operatorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      w.fieldName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "ALL" || w.status === statusFilter;
+      well.name.toLowerCase().includes(needle) ||
+      well.apiNo.toLowerCase().includes(needle) ||
+      well.operatorName.toLowerCase().includes(needle) ||
+      well.fieldName.toLowerCase().includes(needle);
+    const matchesStatus = statusFilter === "ALL" || well.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const handleCreateWell = (e: React.FormEvent) => {
+  async function loadWells() {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/wells", { cache: "no-store" });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to load wells.");
+      }
+
+      setWells(data.wells || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load wells.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleCreateWell = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newWellName || !newApiNo) return;
-    const created: WellRecord = {
-      id: `w-${Date.now()}`,
-      name: newWellName,
-      apiNo: newApiNo,
-      operatorName: newOperator,
-      fieldName: newField,
-      basin: newBasin,
-      country: newCountry,
-      latitude: 31.5,
-      longitude: -103.2,
-      elevFt: 2500,
-      tdFt: parseFloat(newTd) || 12000,
-      status: "ACTIVE",
-      qualityScore: 90,
-      qualityGrade: "EXCELLENT",
-    };
-    setWells([created, ...wells]);
-    setIsCreateOpen(false);
-    setNewWellName("");
-    setNewApiNo("");
+
+    setIsSaving(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/wells", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newWellName,
+          apiNo: newApiNo,
+          operatorName: newOperator,
+          fieldName: newField,
+          basin: newBasin,
+          country: newCountry,
+          tdFt: parseFloat(newTd) || 0,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to create well.");
+      }
+
+      setIsCreateOpen(false);
+      resetForm();
+      await loadWells();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to create well.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleDeleteWell = (id: string) => {
-    setWells(wells.filter((w) => w.id !== id));
+  const handleDeleteWell = async (id: string) => {
+    setError("");
+
+    try {
+      const response = await fetch(`/api/wells/${id}`, { method: "DELETE" });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to delete well.");
+      }
+
+      setWells((current) => current.filter((well) => well.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to delete well.");
+    }
+  };
+
+  const resetForm = () => {
+    setNewWellName("");
+    setNewApiNo("");
+    setNewOperator("");
+    setNewField("");
+    setNewBasin("");
+    setNewCountry("");
+    setNewTd("");
   };
 
   return (
     <AppShell>
       <div className="space-y-6">
-        {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-wellqc-panel/60 border border-wellqc-border p-5 rounded-2xl">
           <div>
             <div className="flex items-center space-x-2">
               <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-blue-500/20 text-cyan-300 border border-cyan-500/40">
-                Module 02 — Well Master Index
+                Module 02 - Well Master Index
               </span>
             </div>
             <h1 className="text-2xl font-black text-white tracking-tight mt-1">
               Enterprise Well Asset Management
             </h1>
             <p className="text-xs text-wellqc-muted font-mono mt-0.5">
-              Centralised repository of wells across global basins, operator assignments, coordinates, and QA health benchmarks.
+              Database-backed list of wells created manually or committed from validated LAS uploads.
             </p>
           </div>
 
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create New Well Asset</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Link
+              href="/upload"
+              className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-wellqc-card border border-wellqc-border hover:border-cyan-500/50 text-cyan-300 font-bold text-xs transition-all"
+            >
+              <UploadCloud className="w-4 h-4" />
+              <span>Upload LAS</span>
+            </Link>
+            <button
+              onClick={() => setIsCreateOpen(true)}
+              className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Well Asset</span>
+            </button>
+          </div>
         </div>
 
-        {/* Filter & Search Bar */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 text-red-200 rounded-xl px-4 py-3 text-xs font-mono">
+            {error}
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-wellqc-panel border border-wellqc-border p-4 rounded-xl">
           <div className="relative flex-1 w-full">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -197,95 +186,46 @@ export default function WellManagementPage() {
             />
           </div>
 
-          <div className="flex items-center space-x-3 w-full md:w-auto">
-            <div className="flex items-center space-x-2 text-xs font-mono">
-              <Filter className="w-4 h-4 text-slate-400" />
-              <span className="text-slate-400">Status:</span>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-wellqc-card border border-wellqc-border rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="DRILLING">Drilling</option>
-                <option value="SHUT_IN">Shut In</option>
-              </select>
-            </div>
+          <div className="flex items-center space-x-2 text-xs font-mono w-full md:w-auto">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <span className="text-slate-400">Status:</span>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-wellqc-card border border-wellqc-border rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="ACTIVE">Active</option>
+              <option value="DRILLING">Drilling</option>
+              <option value="SHUT_IN">Shut In</option>
+              <option value="UNVALIDATED">Unvalidated</option>
+            </select>
           </div>
         </div>
 
-        {/* Create Well Modal */}
         {isCreateOpen && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl">
               <div className="flex items-center justify-between pb-3 border-b border-wellqc-border">
                 <h3 className="text-base font-bold text-white font-mono">Create Well Asset Entry</h3>
-                <button onClick={() => setIsCreateOpen(false)} className="text-slate-400 hover:text-white text-sm">✕</button>
+                <button onClick={() => setIsCreateOpen(false)} className="text-slate-400 hover:text-white text-sm">
+                  X
+                </button>
               </div>
 
               <form onSubmit={handleCreateWell} className="space-y-3 text-xs font-mono">
-                <div>
-                  <label className="block text-slate-400 mb-1">Well Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newWellName}
-                    onChange={(e) => setNewWellName(e.target.value)}
-                    placeholder="e.g. PERMIAN_NORTH_12"
-                    className="w-full bg-wellqc-card border border-wellqc-border rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormInput label="Well Name *" value={newWellName} onChange={setNewWellName} placeholder="e.g. AKPO_NORTH_12" required />
+                  <FormInput label="API / UWI Number *" value={newApiNo} onChange={setNewApiNo} placeholder="e.g. NG-AKPO-012" required />
                 </div>
-                <div>
-                  <label className="block text-slate-400 mb-1">API / UWI Number *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newApiNo}
-                    onChange={(e) => setNewApiNo(e.target.value)}
-                    placeholder="e.g. 42-389-99881-00"
-                    className="w-full bg-wellqc-card border border-wellqc-border rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormInput label="Operator" value={newOperator} onChange={setNewOperator} placeholder="Operator name" />
+                  <FormInput label="Field Name" value={newField} onChange={setNewField} placeholder="Field name" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-slate-400 mb-1">Operator</label>
-                    <input
-                      type="text"
-                      value={newOperator}
-                      onChange={(e) => setNewOperator(e.target.value)}
-                      className="w-full bg-wellqc-card border border-wellqc-border rounded-lg p-2 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-400 mb-1">Field Name</label>
-                    <input
-                      type="text"
-                      value={newField}
-                      onChange={(e) => setNewField(e.target.value)}
-                      className="w-full bg-wellqc-card border border-wellqc-border rounded-lg p-2 text-white"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-slate-400 mb-1">Basin</label>
-                    <input
-                      type="text"
-                      value={newBasin}
-                      onChange={(e) => setNewBasin(e.target.value)}
-                      className="w-full bg-wellqc-card border border-wellqc-border rounded-lg p-2 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-400 mb-1">Total Depth (FT)</label>
-                    <input
-                      type="number"
-                      value={newTd}
-                      onChange={(e) => setNewTd(e.target.value)}
-                      className="w-full bg-wellqc-card border border-wellqc-border rounded-lg p-2 text-white"
-                    />
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <FormInput label="Basin" value={newBasin} onChange={setNewBasin} placeholder="Basin" />
+                  <FormInput label="Country" value={newCountry} onChange={setNewCountry} placeholder="Country" />
+                  <FormInput label="Total Depth (FT)" value={newTd} onChange={setNewTd} placeholder="0" type="number" />
                 </div>
                 <div className="pt-3 flex justify-end space-x-3">
                   <button
@@ -297,9 +237,10 @@ export default function WellManagementPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold"
+                    disabled={isSaving}
+                    className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold disabled:opacity-60"
                   >
-                    Save Asset
+                    {isSaving ? "Saving..." : "Save Asset"}
                   </button>
                 </div>
               </form>
@@ -307,71 +248,120 @@ export default function WellManagementPage() {
           </div>
         )}
 
-        {/* Wells Grid Table */}
         <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl overflow-hidden shadow-xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-wellqc-card border-b border-wellqc-border text-slate-400 uppercase text-[10px]">
-                <tr>
-                  <th className="p-4">Well Asset Name</th>
-                  <th className="p-4">API / UWI</th>
-                  <th className="p-4">Operator</th>
-                  <th className="p-4">Field & Basin</th>
-                  <th className="p-4">Country</th>
-                  <th className="p-4">Total Depth</th>
-                  <th className="p-4">Quality Score</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-wellqc-border text-slate-200">
-                {filteredWells.map((w) => (
-                  <tr key={w.id} className="hover:bg-wellqc-card/60 transition-colors">
-                    <td className="p-4 font-bold text-white">
-                      <Link href={`/wells/${w.id}`} className="hover:text-cyan-400 flex items-center space-x-2">
-                        <Database className="w-4 h-4 text-cyan-400" />
-                        <span>{w.name}</span>
-                      </Link>
-                    </td>
-                    <td className="p-4 text-slate-400">{w.apiNo}</td>
-                    <td className="p-4 text-cyan-300 font-semibold">{w.operatorName}</td>
-                    <td className="p-4">
-                      <div>{w.fieldName}</div>
-                      <div className="text-[10px] text-wellqc-muted">{w.basin}</div>
-                    </td>
-                    <td className="p-4 text-slate-400">{w.country}</td>
-                    <td className="p-4">{w.tdFt.toLocaleString()} FT</td>
-                    <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded text-xs font-bold ${
-                        w.qualityScore >= 90 ? 'badge-excellent' :
-                        w.qualityScore >= 75 ? 'badge-good' :
-                        w.qualityScore >= 50 ? 'badge-poor' : 'badge-critical'
-                      }`}>
-                        {w.qualityScore}/100 ({w.qualityGrade})
-                      </span>
-                    </td>
-                    <td className="p-4 text-right space-x-2">
-                      <Link
-                        href={`/wells/${w.id}`}
-                        className="p-1.5 rounded-lg bg-wellqc-card hover:bg-cyan-500/20 text-cyan-300 inline-block transition-colors"
-                        title="View Well Log Details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Link>
-                      <button
-                        onClick={() => handleDeleteWell(w.id)}
-                        className="p-1.5 rounded-lg bg-wellqc-card hover:bg-red-500/20 text-red-400 inline-block transition-colors"
-                        title="Delete Well"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
+          {isLoading ? (
+            <div className="p-8 text-center text-cyan-300 text-xs font-mono flex items-center justify-center">
+              <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+              Loading wells from database...
+            </div>
+          ) : filteredWells.length === 0 ? (
+            <div className="p-8 text-center space-y-3">
+              <Database className="w-8 h-8 text-cyan-400 mx-auto" />
+              <div className="text-sm font-bold text-white">No wells found</div>
+              <p className="text-xs text-wellqc-muted font-mono">
+                Commit a validated LAS file or create a well asset to populate this table.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-mono">
+                <thead className="bg-wellqc-card border-b border-wellqc-border text-slate-400 uppercase text-[10px]">
+                  <tr>
+                    <th className="p-4">Well Asset Name</th>
+                    <th className="p-4">API / UWI</th>
+                    <th className="p-4">Operator</th>
+                    <th className="p-4">Field & Basin</th>
+                    <th className="p-4">Country</th>
+                    <th className="p-4">LAS File</th>
+                    <th className="p-4">Quality Score</th>
+                    <th className="p-4 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-wellqc-border text-slate-200">
+                  {filteredWells.map((well) => (
+                    <tr key={well.id} className="hover:bg-wellqc-card/60 transition-colors">
+                      <td className="p-4 font-bold text-white">
+                        <Link href={`/wells/${well.id}`} className="hover:text-cyan-400 flex items-center space-x-2">
+                          <Database className="w-4 h-4 text-cyan-400" />
+                          <span>{well.name}</span>
+                        </Link>
+                      </td>
+                      <td className="p-4 text-slate-400">{well.apiNo}</td>
+                      <td className="p-4 text-cyan-300 font-semibold">{well.operatorName}</td>
+                      <td className="p-4">
+                        <div>{well.fieldName}</div>
+                        <div className="text-[10px] text-wellqc-muted">{well.basin}</div>
+                      </td>
+                      <td className="p-4 text-slate-400">{well.country}</td>
+                      <td className="p-4">
+                        <div>{well.latestLasFileName || "No LAS committed"}</div>
+                        <div className="text-[10px] text-wellqc-muted">
+                          {well.curveCount} curves | {well.pointCount.toLocaleString()} points
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-2.5 py-1 rounded text-xs font-bold ${
+                          well.qualityScore >= 90 ? "badge-excellent" :
+                          well.qualityScore >= 75 ? "badge-good" :
+                          well.qualityScore >= 50 ? "badge-poor" : "badge-critical"
+                        }`}>
+                          {well.qualityScore}/100 ({well.qualityGrade})
+                        </span>
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        <Link
+                          href={`/wells/${well.id}`}
+                          className="p-1.5 rounded-lg bg-wellqc-card hover:bg-cyan-500/20 text-cyan-300 inline-block transition-colors"
+                          title="View Well Log Details"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteWell(well.id)}
+                          className="p-1.5 rounded-lg bg-wellqc-card hover:bg-red-500/20 text-red-400 inline-block transition-colors"
+                          title="Delete Well"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </AppShell>
+  );
+}
+
+function FormInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  required?: boolean;
+  type?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-slate-400 mb-1">{label}</label>
+      <input
+        type={type}
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full bg-wellqc-card border border-wellqc-border rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500"
+      />
+    </div>
   );
 }

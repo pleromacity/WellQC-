@@ -180,8 +180,17 @@ function parseHeaderLine(line: string): LASHeaderItem | null {
   if (periodIndex === -1) return null;
   
   const mnemonic = mainPart.substring(0, periodIndex).trim().toUpperCase();
-  const rest = mainPart.substring(periodIndex + 1).trim();
-  
+  const restRaw = mainPart.substring(periodIndex + 1);
+  const rest = restRaw.trim();
+
+  if (!rest) {
+    return { mnemonic, unit: '', value: '', description };
+  }
+
+  if (/^\s/.test(restRaw)) {
+    return { mnemonic, unit: '', value: rest, description };
+  }
+
   const firstSpaceIndex = rest.search(/\s/);
   let unit = '';
   let value = '';

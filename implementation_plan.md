@@ -40,6 +40,9 @@ WellQC+ is an enterprise-grade cloud platform designed to automatically validate
 #### [NEW] [src/lib/las/quality-engine.ts](file:///c:/Users/Ekwebelam/Desktop/WellQC+/src/lib/las/quality-engine.ts)
 - Complete QA algorithm computing Completeness, Consistency, Anomaly Severity, Overall Quality Score (0–100), Grade assignment, and detailed anomaly flags (nulls, gaps, negative porosity, impossible density, extreme spikes, flatlines).
 
+#### [NEW] [src/lib/las/exporter.ts](file:///c:/Users/Ekwebelam/Desktop/WellQC+/src/lib/las/exporter.ts)
+- Generate downloadable cleaned LAS and CSV data immediately after validation, including standardised curve mnemonics, duplicate depth row removal, common unit conversion, null replacement, physical limit filtering, and single-point despiking.
+
 #### [NEW] [src/lib/las/ai-analyzer.ts](file:///c:/Users/Ekwebelam/Desktop/WellQC+/src/lib/las/ai-analyzer.ts)
 - Rule-assisted natural language AI summary generator and interval recommendation engine.
 
@@ -67,7 +70,7 @@ WellQC+ is an enterprise-grade cloud platform designed to automatically validate
 - Well management list, filter, detail view with coordinates map preview, curve inventory, and quality history.
 
 #### [NEW] [src/app/upload/page.tsx](file:///c:/Users/Ekwebelam/Desktop/WellQC+/src/app/upload/page.tsx)
-- Drag & Drop LAS file uploader with real-time parsing, header metadata preview, quality pre-check, and automated standardisation mapping before committing.
+- Drag & Drop LAS file uploader with real-time parsing, header metadata preview, quality pre-check, automated standardisation mapping before committing, and cleaned LAS/CSV download after the validation check completes.
 
 #### [NEW] [src/app/standardisation/page.tsx](file:///c:/Users/Ekwebelam/Desktop/WellQC+/src/app/standardisation/page.tsx)
 - Global and well-specific mnemonic mapping table with manual override controls and dictionary management.
@@ -82,7 +85,7 @@ WellQC+ is an enterprise-grade cloud platform designed to automatically validate
 - Well-to-Well log curve comparison module for side-by-side quality and interval evaluation.
 
 #### [NEW] [src/app/reports/page.tsx](file:///c:/Users/Ekwebelam/Desktop/WellQC+/src/app/reports/page.tsx)
-- Audit report generator with PDF, CSV, and cleaned LAS export capabilities.
+- Audit report generator with PDF, CSV, and cleaned LAS export capabilities using the same cleaned-data exporter as the upload validation workflow.
 
 #### [NEW] [src/app/admin/page.tsx](file:///c:/Users/Ekwebelam/Desktop/WellQC+/src/app/admin/page.tsx)
 - Enterprise RBAC management (Users, Roles, Permissions), audit logs, system settings, API keys, and Webhook dispatch configurations.
@@ -98,5 +101,5 @@ WellQC+ is an enterprise-grade cloud platform designed to automatically validate
 - Run LAS parser test suite validating LAS 2.0 files, header extraction, curve data matrix parsing, standardisation mapping, and quality score calculation.
 
 ### Manual Verification
-- Upload test LAS file via UI, verify drag-and-drop, instant metadata extraction, curve alias matching, deswelling/despiking anomaly detection, and PDF/LAS export generation.
+- Upload test LAS file via UI, verify drag-and-drop, instant metadata extraction, curve alias matching, cleaned LAS/CSV download after validation, despiking anomaly detection, and PDF/LAS export generation.
 - Test interactive log track viewer, role switching (Admin vs Petrophysicist vs Viewer), and admin user permission management.

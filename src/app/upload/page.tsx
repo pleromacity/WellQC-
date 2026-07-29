@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
+import Link from "next/link";
 import { parseLASContent, ParsedLAS } from "@/lib/las/parser";
 import { analyzeWellLogQuality, QualityAnalysisResult } from "@/lib/las/quality-engine";
 import { generateAIAnalysis, AIAnalysisOutput } from "@/lib/las/ai-analyzer";
 import { standardiseMnemonic } from "@/lib/las/standardiser";
+import { buildCleanedDataExport } from "@/lib/las/exporter";
 import { SAMPLE_LAS_FILES, SampleLASFile } from "@/lib/sample-las-files";
 import { WellLogViewer } from "@/components/well-log/log-viewer";
 import {
@@ -23,6 +25,18 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+function downloadTextFile(fileName: string, content: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 export default function LASUploadPage() {
   const [dragActive, setDragActive] = useState(false);
   const [rawText, setRawText] = useState<string>("");
@@ -31,11 +45,16 @@ export default function LASUploadPage() {
   const [qaResult, setQaResult] = useState<QualityAnalysisResult | null>(null);
   const [aiOutput, setAiOutput] = useState<AIAnalysisOutput | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [savedWell, setSavedWell] = useState<{ id: string; name: string; qualityScore: number } | null>(null);
 
   const processFileContent = (content: string, name: string) => {
     setIsProcessing(true);
     setSavedSuccess(false);
+    setSaveError("");
+    setSavedWell(null);
     try {
       const parsed = parseLASContent(content);
       const qa = analyzeWellLogQuality(parsed);
@@ -66,6 +85,51 @@ export default function LASUploadPage() {
 
   const handleSampleClick = (sample: SampleLASFile) => {
     processFileContent(sample.content, sample.name);
+  };
+
+  const handleCleanedDataDownload = (format: "las" | "csv") => {
+    if (!parsedLAS || !qaResult) return;
+
+    const cleanedExport = buildCleanedDataExport(parsedLAS, qaResult);
+
+    if (format === "las") {
+      downloadTextFile(
+        `${cleanedExport.fileStem}_cleaned.las`,
+        cleanedExport.lasContent,
+        "application/octet-stream;charset=utf-8",
+      );
+      return;
+    }
+
+    downloadTextFile(`${cleanedExport.fileStem}_cleaned.csv`, cleanedExport.csvContent, "text/csv;charset=utf-8");
+  };
+
+  const handleCommitToDatabase = async () => {
+    if (!rawText || !parsedLAS || !qaResult) return;
+
+    setIsSaving(true);
+    setSaveError("");
+
+    try {
+      const response = await fetch("/api/las", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName, content: rawText }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to commit this LAS file.");
+      }
+
+      setSavedSuccess(true);
+      setSavedWell(result.well);
+    } catch (error) {
+      setSavedSuccess(false);
+      setSaveError(error instanceof Error ? error.message : "Unable to commit this LAS file.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -193,13 +257,44 @@ export default function LASUploadPage() {
 
               <div className="space-y-2 text-right">
                 <button
-                  onClick={() => setSavedSuccess(true)}
-                  disabled={savedSuccess}
+                  onClick={handleCommitToDatabase}
+                  disabled={savedSuccess || isSaving}
                   className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all"
                 >
-                  <Database className="w-4 h-4" />
-                  <span>{savedSuccess ? "Saved to Database ✓" : "Commit Well to Database"}</span>
+                  {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
+                  <span>
+                    {isSaving ? "Saving..." : savedSuccess ? "Saved to Database ✓" : "Commit Well to Database"}
+                  </span>
                 </button>
+                {saveError && (
+                  <div className="text-left text-[11px] text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 font-mono">
+                    {saveError}
+                  </div>
+                )}
+                {savedWell && (
+                  <Link
+                    href={`/wells/${savedWell.id}`}
+                    className="block text-center text-[11px] text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2 font-mono hover:border-emerald-400"
+                  >
+                    View saved well: {savedWell.name} ({savedWell.qualityScore}/100)
+                  </Link>
+                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => handleCleanedDataDownload("las")}
+                    className="flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] font-mono transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Cleaned LAS</span>
+                  </button>
+                  <button
+                    onClick={() => handleCleanedDataDownload("csv")}
+                    className="flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg bg-wellqc-card hover:bg-cyan-500/20 border border-wellqc-border hover:border-cyan-500/50 text-cyan-300 font-bold text-[11px] font-mono transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Cleaned CSV</span>
+                  </button>
+                </div>
               </div>
             </div>
 
