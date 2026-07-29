@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ActivityListItem } from "@/lib/api-types";
-import { Search, Bell, Shield, User, ChevronDown, Check, Globe } from "lucide-react";
+import { Search, Bell, Shield, User, ChevronDown, Check, Globe, LogOut } from "lucide-react";
 
 interface HeaderProps {
   currentRole: string;
@@ -12,9 +12,10 @@ interface HeaderProps {
     email: string;
     department: string;
   };
+  onLogout: () => void;
 }
 
-export function Header({ currentRole, onRoleChange, currentUser }: HeaderProps) {
+export function Header({ currentRole, onRoleChange, currentUser, onLogout }: HeaderProps) {
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [activities, setActivities] = useState<ActivityListItem[]>([]);
@@ -161,6 +162,9 @@ export function Header({ currentRole, onRoleChange, currentUser }: HeaderProps) 
             <div className="text-xs font-semibold text-slate-100">{currentUser.name}</div>
             <div className="text-[10px] text-wellqc-muted font-mono">{currentUser.department}</div>
           </div>
+          <button onClick={onLogout} title="Sign out" aria-label="Sign out" className="p-2 text-slate-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors">
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </header>

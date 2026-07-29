@@ -23,7 +23,22 @@ import {
   Download,
   Info,
   RefreshCw,
+  X,
 } from "lucide-react";
+
+type UploadStatus = "ready" | "saving" | "saved" | "error";
+
+interface QueuedLASFile {
+  id: string;
+  name: string;
+  content: string;
+  parsed: ParsedLAS;
+  qa: QualityAnalysisResult;
+  ai: AIAnalysisOutput;
+  status: UploadStatus;
+  error?: string;
+  savedWell?: { id: string; name: string; qualityScore: number };
+}
 
 function downloadTextFile(fileName: string, content: string, mimeType: string) {
   const blob = new Blob([content], { type: mimeType });
@@ -49,6 +64,7 @@ export default function LASUploadPage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [savedWell, setSavedWell] = useState<{ id: string; name: string; qualityScore: number } | null>(null);
+  const [uploadQueue, setUploadQueue] = useState<QueuedLASFile[]>([]);
 
   const processFileContent = (content: string, name: string) => {
     setIsProcessing(true);
@@ -72,18 +88,61 @@ export default function LASUploadPage() {
     }
   };
 
+  const loadQueuedFile = (file: QueuedLASFile) => {
+    setRawText(file.content);
+    setFileName(file.name);
+    setParsedLAS(file.parsed);
+    setQaResult(file.qa);
+    setAiOutput(file.ai);
+    setSavedSuccess(file.status === "saved");
+    setSaveError(file.error || "");
+    setSavedWell(file.savedWell || null);
+  };
+
+  const queueFiles = async (files: File[]) => {
+    const lasFiles = files.filter((file) => /\.(las|txt)$/i.test(file.name) && file.size <= 20 * 1024 * 1024);
+    if (lasFiles.length === 0) {
+      setSaveError("Choose LAS or TXT files no larger than 20 MB.");
+      return;
+    }
+
+    setIsProcessing(true);
+    setSaveError("");
+    try {
+      const queued = await Promise.all(lasFiles.map(async (file): Promise<QueuedLASFile | null> => {
+        try {
+          const content = await file.text();
+          const parsed = parseLASContent(content);
+          const qa = analyzeWellLogQuality(parsed);
+          const ai = generateAIAnalysis(parsed, qa);
+          return { id: `${file.name}-${file.lastModified}-${file.size}`, name: file.name, content, parsed, qa, ai, status: "ready" };
+        } catch {
+          return null;
+        }
+      }));
+      const validFiles = queued.filter((file): file is QueuedLASFile => file !== null);
+      if (validFiles.length === 0) {
+        setSaveError("None of the selected files could be read as LAS data.");
+        return;
+      }
+      setUploadQueue(validFiles);
+      loadQueuedFile(validFiles[0]);
+      if (validFiles.length !== files.length) {
+        setSaveError(`${files.length - validFiles.length} file(s) were skipped because they are invalid, unsupported, or over 20 MB.`);
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const text = evt.target?.result as string;
-      processFileContent(text, file.name);
-    };
-    reader.readAsText(file);
+    const files = Array.from(e.target.files || []);
+    void queueFiles(files);
+    e.target.value = "";
   };
 
   const handleSampleClick = (sample: SampleLASFile) => {
+    setUploadQueue([]);
     processFileContent(sample.content, sample.name);
   };
 
@@ -104,32 +163,59 @@ export default function LASUploadPage() {
     downloadTextFile(`${cleanedExport.fileStem}_cleaned.csv`, cleanedExport.csvContent, "text/csv;charset=utf-8");
   };
 
+  const commitFile = async (name: string, content: string) => {
+    const response = await fetch("/api/las", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName: name, content }),
+      });
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Unable to commit this LAS file.");
+    }
+    return result;
+  };
+
   const handleCommitToDatabase = async () => {
     if (!rawText || !parsedLAS || !qaResult) return;
 
     setIsSaving(true);
     setSaveError("");
-
     try {
-      const response = await fetch("/api/las", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName, content: rawText }),
-      });
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Unable to commit this LAS file.");
-      }
-
+      const result = await commitFile(fileName, rawText);
       setSavedSuccess(true);
       setSavedWell(result.well);
+      setUploadQueue((files) => files.map((file) => file.name === fileName
+        ? { ...file, status: "saved", savedWell: result.well, error: undefined }
+        : file));
     } catch (error) {
       setSavedSuccess(false);
       setSaveError(error instanceof Error ? error.message : "Unable to commit this LAS file.");
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleCommitAll = async () => {
+    const pendingFiles = uploadQueue.filter((file) => file.status === "ready" || file.status === "error");
+    if (pendingFiles.length === 0) return;
+
+    setIsSaving(true);
+    setSaveError("");
+    for (const file of pendingFiles) {
+      setUploadQueue((files) => files.map((item) => item.id === file.id ? { ...item, status: "saving", error: undefined } : item));
+      try {
+        const result = await commitFile(file.name, file.content);
+        const savedFile = { ...file, status: "saved" as const, savedWell: result.well, error: undefined };
+        setUploadQueue((files) => files.map((item) => item.id === file.id ? savedFile : item));
+        loadQueuedFile(savedFile);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unable to commit this LAS file.";
+        setUploadQueue((files) => files.map((item) => item.id === file.id ? { ...item, status: "error", error: message } : item));
+      }
+    }
+    setIsSaving(false);
   };
 
   return (
@@ -176,15 +262,7 @@ export default function LASUploadPage() {
           onDrop={(e) => {
             e.preventDefault();
             setDragActive(false);
-            const file = e.dataTransfer.files?.[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = (evt) => {
-                const text = evt.target?.result as string;
-                processFileContent(text, file.name);
-              };
-              reader.readAsText(file);
-            }
+            void queueFiles(Array.from(e.dataTransfer.files || []));
           }}
           className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${
             dragActive
@@ -195,6 +273,7 @@ export default function LASUploadPage() {
           <input
             type="file"
             accept=".las,.txt"
+            multiple
             onChange={handleFileUpload}
             className="hidden"
             id="las-file-input"
@@ -204,7 +283,7 @@ export default function LASUploadPage() {
               <UploadCloud className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-base font-bold text-white">Drag and drop your raw LAS file here</span>
+              <span className="text-base font-bold text-white">Drag and drop one or more raw LAS files here</span>
               <p className="text-xs text-wellqc-muted font-mono mt-1">
                 Supports LAS 2.0 & 3.0 ASCII well log files (.las, .txt up to 20MB)
               </p>
@@ -217,6 +296,46 @@ export default function LASUploadPage() {
           <div className="p-6 bg-wellqc-panel border border-cyan-500/40 rounded-2xl text-center space-y-3">
             <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin mx-auto" />
             <div className="text-sm font-bold text-white font-mono">Extracting LAS Headers & Executing Petrophysical QA Rules...</div>
+          </div>
+        )}
+
+        {uploadQueue.length > 0 && !isProcessing && (
+          <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl p-5 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-bold text-white">Batch Upload Queue</h2>
+                <p className="text-[11px] text-wellqc-muted font-mono">{uploadQueue.length} validated file{uploadQueue.length === 1 ? "" : "s"}. Files commit one at a time to preserve every result.</p>
+              </div>
+              <button
+                onClick={handleCommitAll}
+                disabled={isSaving || uploadQueue.every((file) => file.status === "saved")}
+                className="flex items-center justify-center space-x-2 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 font-bold text-xs"
+              >
+                {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
+                <span>{isSaving ? "Committing queue..." : "Commit all to database"}</span>
+              </button>
+            </div>
+            <div className="divide-y divide-wellqc-border border border-wellqc-border rounded-lg overflow-hidden">
+              {uploadQueue.map((file) => (
+                <div key={file.id} className="flex items-center gap-3 px-3 py-2 bg-wellqc-card/40">
+                  <button onClick={() => loadQueuedFile(file)} className="min-w-0 flex-1 text-left hover:text-cyan-300">
+                    <span className="block truncate text-xs font-mono font-bold text-white">{file.name}</span>
+                    <span className="text-[10px] text-wellqc-muted">{file.parsed.wellInfo.wellName} · {file.qa.overallScore}/100</span>
+                  </button>
+                  <span className={`text-[10px] font-mono font-bold ${file.status === "saved" ? "text-emerald-400" : file.status === "error" ? "text-red-300" : file.status === "saving" ? "text-cyan-300" : "text-slate-400"}`}>
+                    {file.status === "saved" ? "SAVED" : file.status === "saving" ? "SAVING" : file.status === "error" ? "FAILED" : "READY"}
+                  </span>
+                  <button
+                    onClick={() => setUploadQueue((files) => files.filter((item) => item.id !== file.id))}
+                    disabled={isSaving}
+                    className="p-1 text-slate-500 hover:text-red-300 disabled:opacity-40"
+                    aria-label={`Remove ${file.name}`}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

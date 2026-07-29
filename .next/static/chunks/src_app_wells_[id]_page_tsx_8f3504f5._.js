@@ -4,7 +4,7 @@
   "static/chunks/src_180aca9c._.js",
   "static/chunks/node_modules_lodash_5f5730f7._.js",
   "static/chunks/node_modules_recharts_es6_bb9380e3._.js",
-  "static/chunks/node_modules_8e18287b._.js"
+  "static/chunks/node_modules_261f5cd5._.js"
 ],
     source: "dynamic"
 });
