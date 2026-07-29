@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
     const activities = await db.activityLog.findMany({
+      where: { userId: user.id },
       orderBy: { createdAt: "desc" },
       take: 100,
     });

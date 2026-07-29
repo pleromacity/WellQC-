@@ -4,6 +4,8 @@ import { parseLASContent } from "@/lib/las/parser";
 import { analyzeWellLogQuality } from "@/lib/las/quality-engine";
 import { generateAIAnalysis } from "@/lib/las/ai-analyzer";
 import { standardiseMnemonic } from "@/lib/las/standardiser";
+import { getCurrentUser } from "@/lib/auth";
+import { buildCleanedDataExport } from "@/lib/las/exporter";
 
 interface CommitLASRequest {
   fileName?: string;
@@ -12,6 +14,8 @@ interface CommitLASRequest {
 
 export async function POST(request: Request) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
     const body = (await request.json()) as CommitLASRequest;
     const content = body.content?.trim();
     const fileName = body.fileName?.trim() || "uploaded-well-log.las";
@@ -22,6 +26,8 @@ export async function POST(request: Request) {
 
     const parsed = parseLASContent(content);
     const qa = analyzeWellLogQuality(parsed);
+    const cleaned = buildCleanedDataExport(parsed, qa);
+    const cleanedCurves = new Map(cleaned.curves.map((curve) => [curve.originalMnemonic, curve]));
     const ai = generateAIAnalysis(parsed, qa);
     const operatorName = fallback(parsed.wellInfo.company, "Unknown Operator");
     const fieldName = fallback(parsed.wellInfo.field, "Uploaded Field");
@@ -34,12 +40,13 @@ export async function POST(request: Request) {
     const curveRows = qa.curveSummaries.map((summary) => {
       const curveMeta = parsed.curves.find((curve) => curve.mnemonic === summary.mnemonic);
       const standard = standardiseMnemonic(summary.mnemonic, summary.unit);
-      const values = parsed.data.curves[summary.mnemonic] || [];
+      const cleanedCurve = cleanedCurves.get(summary.mnemonic);
+      const values = cleanedCurve?.values || parsed.data.curves[summary.mnemonic] || [];
 
       return {
         originalMnemonic: summary.mnemonic,
-        standardMnemonic: summary.standardMnemonic,
-        unit: summary.unit,
+        standardMnemonic: cleanedCurve?.exportMnemonic || summary.standardMnemonic,
+        unit: cleanedCurve?.unit || summary.unit,
         description: curveMeta?.description || standard.matchedName,
         nullCount: summary.nullCount,
         totalPoints: summary.totalPoints,
@@ -79,6 +86,11 @@ export async function POST(request: Request) {
         },
       });
 
+      const existingWell = await tx.well.findUnique({ where: { apiNo }, select: { id: true, ownerId: true } });
+      if (existingWell && existingWell.ownerId !== user.id) {
+        throw new Error("This API/UWI is already assigned to another workspace.");
+      }
+
       const well = await tx.well.upsert({
         where: { apiNo },
         update: {
@@ -94,6 +106,7 @@ export async function POST(request: Request) {
           qualityScore: qa.overallScore,
           qualityGrade: qa.qualityGrade,
           status: "ACTIVE",
+          ownerId: user.id,
         },
         create: {
           apiNo,
@@ -109,6 +122,7 @@ export async function POST(request: Request) {
           qualityScore: qa.overallScore,
           qualityGrade: qa.qualityGrade,
           status: "ACTIVE",
+          ownerId: user.id,
         },
       });
 
@@ -127,6 +141,7 @@ export async function POST(request: Request) {
           curveCount: parsed.curves.length,
           pointCount: parsed.totalPoints,
           status: "PROCESSED",
+          uploadedById: user.id,
         },
       });
 
@@ -174,7 +189,8 @@ export async function POST(request: Request) {
       await tx.activityLog.create({
         data: {
           userName: "Upload Workspace",
-          userRole: "PETROPHYSICIST",
+          userRole: user.role,
+          userId: user.id,
           action: "UPLOAD_LAS",
           targetType: "WELL",
           targetId: well.id,

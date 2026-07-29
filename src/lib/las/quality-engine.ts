@@ -1,5 +1,6 @@
 import { ParsedLAS } from './parser';
 import { standardiseMnemonic, STANDARD_CURVES } from './standardiser';
+import { convertToStandardUnit } from './exporter';
 
 export interface AnomalyReportItem {
   curveMnemonic: string;
@@ -123,12 +124,38 @@ export function analyzeWellLogQuality(las: ParsedLAS): QualityAnalysisResult {
       if (v === nullValue || Math.abs(v - nullValue) < 0.01 || isNaN(v)) {
         nullCount++;
       } else {
-        validPoints.push({ depth: depthArray[idx], val: v, idx });
+        validPoints.push({
+          depth: depthArray[idx],
+          val: convertToStandardUnit(v, cMeta.unit, stdRes.standardMnemonic).value,
+          idx,
+        });
       }
     });
 
     const nullPercentage = totalPoints > 0 ? (nullCount / totalPoints) * 100 : 0;
     const curveAnomalies: AnomalyReportItem[] = [];
+
+    // Extended null runs are a distinct telemetry-quality issue, not just a percentage.
+    let nullRunStart = -1;
+    for (let index = 0; index <= rawValues.length; index++) {
+      const isNull = index < rawValues.length && (rawValues[index] === nullValue || Math.abs(rawValues[index] - nullValue) < 0.01 || Number.isNaN(rawValues[index]));
+      if (isNull && nullRunStart === -1) nullRunStart = index;
+      if (!isNull && nullRunStart !== -1) {
+        const runLength = index - nullRunStart;
+        if (runLength >= 10) {
+          curveAnomalies.push({
+            curveMnemonic: cMeta.mnemonic,
+            depthStart: depthArray[nullRunStart],
+            depthEnd: depthArray[index - 1],
+            anomalyType: 'NULL_CLUSTER',
+            severity: 'WARNING',
+            description: `Missing-data cluster of ${runLength} consecutive samples.`,
+            suggestedCorrection: 'Review the acquisition interval and retain the samples as null if recovery is not defensible.',
+          });
+        }
+        nullRunStart = -1;
+      }
+    }
 
     // Calculate statistical metrics
     let minVal: number | null = null;
@@ -215,6 +242,17 @@ export function analyzeWellLogQuality(las: ParsedLAS): QualityAnalysisResult {
           flatlineLength = 1;
           flatlineStartDepth = validPoints[i].depth;
         }
+      }
+      if (flatlineLength > 25) {
+        curveAnomalies.push({
+          curveMnemonic: cMeta.mnemonic,
+          depthStart: flatlineStartDepth,
+          depthEnd: validPoints[validPoints.length - 1].depth,
+          anomalyType: 'FLATLINE',
+          severity: 'WARNING',
+          description: `Stuck/flatline sensor output detected over ${flatlineLength} steps (${flatlineStartDepth} to ${validPoints[validPoints.length - 1].depth} ${las.wellInfo.depthUnit})`,
+          suggestedCorrection: 'Mark flatline depth interval as unreliable sensor telemetry.',
+        });
       }
     }
 

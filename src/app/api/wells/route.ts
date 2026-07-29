@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { WellListItem } from "@/lib/api-types";
+import { getCurrentUser } from "@/lib/auth";
 
 interface CreateWellRequest {
   name?: string;
@@ -16,7 +17,10 @@ interface CreateWellRequest {
 
 export async function GET() {
   try {
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
     const wells = await db.well.findMany({
+      where: { ownerId: user.id },
       orderBy: { updatedAt: "desc" },
       include: {
         lasFiles: {
@@ -44,6 +48,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
     const body = (await request.json()) as CreateWellRequest;
     const name = body.name?.trim();
     const apiNo = body.apiNo?.trim();
@@ -94,13 +100,15 @@ export async function POST(request: Request) {
           tdFt: body.tdFt ?? 0,
           qualityScore: 0,
           qualityGrade: "UNVALIDATED",
+          ownerId: user.id,
         },
       });
 
       await tx.activityLog.create({
         data: {
           userName: "Well Management",
-          userRole: "DATA_ENGINEER",
+          userRole: user.role,
+          userId: user.id,
           action: "CREATE_WELL",
           targetType: "WELL",
           targetId: savedWell.id,

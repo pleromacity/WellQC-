@@ -1,5 +1,5 @@
 import { ParsedLAS } from "./parser";
-import { QualityAnalysisResult } from "./quality-engine";
+import type { QualityAnalysisResult } from "./quality-engine";
 import { STANDARD_CURVES, standardiseMnemonic } from "./standardiser";
 
 export interface CleanedCurveExport {
@@ -202,7 +202,7 @@ function cleanCurveValues(
   };
 }
 
-function convertToStandardUnit(
+export function convertToStandardUnit(
   value: number,
   rawUnit: string,
   standardMnemonic: string,

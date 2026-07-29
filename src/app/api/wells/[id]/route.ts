@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { WellDetailResponse, WellListItem } from "@/lib/api-types";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
 
   try {
     const well = await db.well.findUnique({
-      where: { id },
+      where: { id, ownerId: user.id },
       include: {
         lasFiles: {
           orderBy: { createdAt: "desc" },
@@ -60,10 +63,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
 
   try {
     await db.$transaction(async (tx) => {
-      const well = await tx.well.findUnique({ where: { id }, select: { name: true } });
+      const well = await tx.well.findFirst({ where: { id, ownerId: user.id }, select: { name: true } });
+      if (!well) throw new Error("Well not found or access is not permitted.");
       const reports = await tx.qualityReport.findMany({ where: { wellId: id }, select: { id: true } });
       const curves = await tx.curve.findMany({
         where: { lasFile: { wellId: id } },
@@ -84,7 +90,8 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       await tx.activityLog.create({
         data: {
           userName: "Well Management",
-          userRole: "DATA_ENGINEER",
+          userRole: user.role,
+          userId: user.id,
           action: "DELETE_WELL",
           targetType: "WELL",
           targetId: id,

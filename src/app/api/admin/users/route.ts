@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
+    if (user.role !== "ADMIN") return NextResponse.json({ error: "Administrator access is required." }, { status: 403 });
     const users = await db.user.findMany({
       orderBy: { createdAt: "desc" },
       select: {

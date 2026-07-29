@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 
 const ANOMALY_COLORS: Record<string, string> = {
   EXTREME_SPIKE: "#f59e0b",
@@ -13,8 +14,11 @@ const ANOMALY_COLORS: Record<string, string> = {
 
 export async function GET() {
   try {
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
     const [wells, anomalies] = await Promise.all([
       db.well.findMany({
+        where: { ownerId: user.id },
         select: {
           operatorName: true,
           qualityScore: true,
@@ -22,6 +26,7 @@ export async function GET() {
         },
       }),
       db.anomaly.groupBy({
+        where: { qualityReport: { well: { ownerId: user.id } } },
         by: ["anomalyType"],
         _count: { anomalyType: true },
         orderBy: { _count: { anomalyType: "desc" } },

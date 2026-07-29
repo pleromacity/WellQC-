@@ -1,9 +1,3 @@
 {
-  "/analytics/page": "app/analytics/page.js",
-  "/api/activity/route": "app/api/activity/route.js",
-  "/api/analytics/route": "app/api/analytics/route.js",
-  "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/api/dashboard/route": "app/api/dashboard/route.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/qa-engine/page": "app/qa-engine/page.js"
+  "/dashboard/page": "app/dashboard/page.js"
 }

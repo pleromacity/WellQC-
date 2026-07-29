@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { DashboardSummary } from "@/lib/api-types";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const sevenDaysAgo = new Date(startOfToday);
@@ -24,19 +27,19 @@ export async function GET() {
       problemWells,
       recentActivity,
     ] = await Promise.all([
-      db.well.count(),
-      db.lASFile.count(),
-      db.curve.count(),
-      db.anomaly.count(),
-      db.anomaly.count({ where: { severity: { in: ["CRITICAL", "WARNING"] } } }),
-      db.qualityReport.aggregate({ _avg: { overallScore: true } }),
-      db.lASFile.count({ where: { createdAt: { gte: startOfToday } } }),
+      db.well.count({ where: { ownerId: user.id } }),
+      db.lASFile.count({ where: { well: { ownerId: user.id } } }),
+      db.curve.count({ where: { lasFile: { well: { ownerId: user.id } } } }),
+      db.anomaly.count({ where: { qualityReport: { well: { ownerId: user.id } } } }),
+      db.anomaly.count({ where: { severity: { in: ["CRITICAL", "WARNING"] }, qualityReport: { well: { ownerId: user.id } } } }),
+      db.qualityReport.aggregate({ where: { well: { ownerId: user.id } }, _avg: { overallScore: true } }),
+      db.lASFile.count({ where: { createdAt: { gte: startOfToday }, well: { ownerId: user.id } } }),
       db.lASFile.aggregate({
-        where: { createdAt: { gte: startOfToday } },
+        where: { createdAt: { gte: startOfToday }, well: { ownerId: user.id } },
         _sum: { fileSizeKb: true },
       }),
       db.qualityReport.findMany({
-        where: { createdAt: { gte: sevenDaysAgo } },
+        where: { createdAt: { gte: sevenDaysAgo }, well: { ownerId: user.id } },
         select: {
           createdAt: true,
           overallScore: true,
@@ -45,17 +48,17 @@ export async function GET() {
         },
       }),
       db.lASFile.findMany({
-        where: { createdAt: { gte: sevenDaysAgo } },
+        where: { createdAt: { gte: sevenDaysAgo }, well: { ownerId: user.id } },
         select: { createdAt: true },
       }),
-      db.well.findMany({
+      db.well.findMany({ where: { ownerId: user.id },
         select: {
           fieldName: true,
           qualityScore: true,
         },
       }),
       db.well.findMany({
-        where: {
+        where: { ownerId: user.id,
           OR: [{ qualityScore: { lt: 75 } }, { qualityGrade: { in: ["POOR", "CRITICAL"] } }],
         },
         orderBy: { qualityScore: "asc" },
@@ -73,7 +76,7 @@ export async function GET() {
           },
         },
       }),
-      db.activityLog.findMany({
+      db.activityLog.findMany({ where: { userId: user.id },
         orderBy: { createdAt: "desc" },
         take: 5,
       }),

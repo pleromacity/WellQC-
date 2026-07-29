@@ -10,6 +10,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptedNda, setAcceptedNda] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const isRegister = mode === "register";
@@ -19,7 +20,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     setSaving(true);
     setError("");
     try {
-      const response = await fetch(`/api/auth/${mode}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, password }) });
+      const response = await fetch(`/api/auth/${mode}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, password, acceptedNda }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Unable to continue.");
       router.replace("/dashboard");
@@ -44,6 +45,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           {isRegister && <Field icon={<UserRound className="w-4 h-4" />} label="Full name" value={name} onChange={setName} autoComplete="name" />}
           <Field icon={<Mail className="w-4 h-4" />} label="Email address" value={email} onChange={setEmail} type="email" autoComplete="email" />
           <Field icon={<KeyRound className="w-4 h-4" />} label="Password" value={password} onChange={setPassword} type="password" autoComplete={isRegister ? "new-password" : "current-password"} hint={isRegister ? "At least 8 characters" : undefined} />
+          {isRegister && <label className="flex items-start gap-2 text-xs text-slate-300"><input required checked={acceptedNda} onChange={(event) => setAcceptedNda(event.target.checked)} type="checkbox" className="mt-0.5 accent-cyan-400" /><span>I agree to keep uploaded well data confidential and use it only within my authorised workspace.</span></label>}
           {error && <div className="text-xs text-red-200 bg-red-500/10 border border-red-500/30 rounded-lg p-3">{error}</div>}
           <button disabled={saving} className="w-full h-10 flex items-center justify-center gap-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-60 text-slate-950 font-bold text-sm">
             {saving && <LoaderCircle className="w-4 h-4 animate-spin" />}{isRegister ? "Create account" : "Sign in"}

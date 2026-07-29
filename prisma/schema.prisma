@@ -16,12 +16,14 @@ model User {
   role          String        @default("PETROPHYSICIST") // ADMIN, PETROPHYSICIST, DATA_ENGINEER, GEOSCIENTIST, VIEWER
   department    String?       @default("Subsurface Analytics")
   avatarUrl     String?
+  ndaAcceptedAt DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   
   lasFiles      LASFile[]     @relation("UserUploads")
   activityLogs  ActivityLog[]
   apiTokens     APIToken[]
+  wells         Well[]
 }
 
 model Field {
@@ -59,6 +61,8 @@ model Well {
   status       String          @default("ACTIVE") // ACTIVE, DRILLING, SHUT_IN, COMPLETED, ABANDONED
   qualityScore Int             @default(0) // 0 - 100
   qualityGrade String          @default("UNKNOWN") // EXCELLENT, GOOD, POOR, CRITICAL
+  ownerId      String?
+  owner        User?           @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   
   field        Field?          @relation(fields: [fieldName], references: [name])
   operator     Operator?       @relation(fields: [operatorName], references: [name])
@@ -67,6 +71,8 @@ model Well {
   
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
+
+  @@index([ownerId])
 }
 
 model LASFile {

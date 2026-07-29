@@ -1,5 +1,6 @@
 import { createHmac, randomBytes, scrypt as scryptCallback, timingSafeEqual } from "crypto";
 import { promisify } from "util";
+import { cookies } from "next/headers";
 
 const scrypt = promisify(scryptCallback);
 const sessionSecret = process.env.AUTH_SECRET || "wellqc-local-development-secret";
@@ -46,4 +47,8 @@ export function readSession(token: string | undefined): SessionUser | null {
   } catch {
     return null;
   }
+}
+
+export async function getCurrentUser() {
+  return readSession((await cookies()).get("wellqc_session")?.value);
 }
