@@ -1,0 +1,15 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/activity/page": "/activity",
+  "/analytics/page": "/analytics",
+  "/dashboard/page": "/dashboard",
+  "/admin/page": "/admin",
+  "/comparison/page": "/comparison",
+  "/page": "/",
+  "/qa-engine/page": "/qa-engine",
+  "/standardisation/page": "/standardisation",
+  "/reports/page": "/reports",
+  "/wells/page": "/wells",
+  "/upload/page": "/upload",
+  "/wells/[id]/page": "/wells/[id]"
+}

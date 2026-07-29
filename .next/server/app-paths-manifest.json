@@ -1,0 +1,12 @@
+{
+  "/activity/page": "app/activity/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/analytics/page": "app/analytics/page.js",
+  "/comparison/page": "app/comparison/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/qa-engine/page": "app/qa-engine/page.js",
+  "/reports/page": "app/reports/page.js",
+  "/standardisation/page": "app/standardisation/page.js",
+  "/upload/page": "app/upload/page.js",
+  "/wells/page": "app/wells/page.js"
+}
