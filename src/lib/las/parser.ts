@@ -50,14 +50,14 @@ export interface ParsedLAS {
  */
 export function parseLASContent(content: string): ParsedLAS {
   const lines = content.split(/\r?\n/);
-  
+
   let currentSection: string | null = null;
   const versionItems: Record<string, LASHeaderItem> = {};
   const wellItems: Record<string, LASHeaderItem> = {};
   const curveMetas: LASCurveMeta[] = [];
   const headerLines: string[] = [];
   const asciiLines: string[] = [];
-  
+
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) {
@@ -66,7 +66,7 @@ export function parseLASContent(content: string): ParsedLAS {
       }
       continue;
     }
-    
+
     // Check for section headers (e.g. ~VERSION, ~WELL, ~CURVE, ~PARAMETER, ~ASCII)
     if (trimmed.startsWith('~')) {
       const sectionName = trimmed.split(/\s+/)[0].toUpperCase();
@@ -77,15 +77,15 @@ export function parseLASContent(content: string): ParsedLAS {
       else if (sectionName.startsWith('~O')) currentSection = '~O';
       else if (sectionName.startsWith('~A')) currentSection = '~A';
       else currentSection = sectionName;
-      
+
       if (currentSection !== '~A') headerLines.push(line);
       continue;
     }
-    
+
     if (currentSection !== '~A') {
       headerLines.push(line);
     }
-    
+
     // Parse header line format: MNEM.UNIT VALUE : DESCRIPTION
     if (currentSection === '~V' || currentSection === '~W') {
       const parsedItem = parseHeaderLine(trimmed);
@@ -102,35 +102,35 @@ export function parseLASContent(content: string): ParsedLAS {
       asciiLines.push(trimmed);
     }
   }
-  
+
   // Parse well parameters with safe fallbacks
   const startDepth = parseFloat(wellItems['STRT']?.value || '0');
   const stopDepth = parseFloat(wellItems['STOP']?.value || '0');
   const step = parseFloat(wellItems['STEP']?.value || '0.5');
   const nullValue = parseFloat(wellItems['NULL']?.value || '-999.25');
   const depthUnit = wellItems['STRT']?.unit || wellItems['STOP']?.unit || 'FT';
-  
+
   const wellName = wellItems['WELL']?.value || wellItems['NAME']?.value || 'UNKNOWN_WELL';
-  const company = wellItems['COMP']?.value || 'UNKNOWN_OPERATOR';
-  const field = wellItems['FLD']?.value || 'UNKNOWN_FIELD';
+  const company = wellItems['COMP']?.value || 'NDI-GROUP-5';
+  const field = wellItems['FLD']?.value || 'NIGER DELTA';
   const location = wellItems['LOC']?.value || '';
-  const country = wellItems['CTRY']?.value || wellItems['CNTY']?.value || 'USA';
-  const state = wellItems['STAT']?.value || '';
+  const country = wellItems['CTRY']?.value || wellItems['CNTY']?.value || 'NIGERIA';
+  const state = wellItems['STAT']?.value || 'DELTA STATE';
   const apiUwi = wellItems['API']?.value || wellItems['UWI']?.value || `API-${Math.floor(1000000000 + Math.random() * 9000000000)}`;
   const serviceCompany = wellItems['SRVC']?.value || 'SLB';
   const date = wellItems['DATE']?.value || new Date().toISOString().split('T')[0];
-  
+
   const lat = parseFloat(wellItems['LATI']?.value || '0') || undefined;
   const lon = parseFloat(wellItems['LONG']?.value || '0') || undefined;
-  
+
   // Parse Matrix ASCII Data
   const depthValues: number[] = [];
   const curvesData: Record<string, number[]> = {};
-  
+
   curveMetas.forEach((c) => {
     curvesData[c.mnemonic] = [];
   });
-  
+
   // Identify if any curve in curveMetas represents Measured Depth
   const depthCurveIndex = curveMetas.findIndex((c) => {
     const std = standardiseMnemonic(c.mnemonic, c.unit);
@@ -155,7 +155,7 @@ export function parseLASContent(content: string): ParsedLAS {
       });
     }
   }
-  
+
   return {
     version: versionItems['VERS']?.value || '2.0',
     wrap: (versionItems['WRAP']?.value || 'NO').toUpperCase().startsWith('Y'),
@@ -191,10 +191,10 @@ function parseHeaderLine(line: string): LASHeaderItem | null {
   const colonIndex = line.indexOf(':');
   const mainPart = colonIndex !== -1 ? line.substring(0, colonIndex) : line;
   const description = colonIndex !== -1 ? line.substring(colonIndex + 1).trim() : '';
-  
+
   const periodIndex = mainPart.indexOf('.');
   if (periodIndex === -1) return null;
-  
+
   const mnemonic = mainPart.substring(0, periodIndex).trim().toUpperCase();
   const restRaw = mainPart.substring(periodIndex + 1);
   const rest = restRaw.trim();
@@ -210,14 +210,14 @@ function parseHeaderLine(line: string): LASHeaderItem | null {
   const firstSpaceIndex = rest.search(/\s/);
   let unit = '';
   let value = '';
-  
+
   if (firstSpaceIndex !== -1) {
     unit = rest.substring(0, firstSpaceIndex).trim();
     value = rest.substring(firstSpaceIndex + 1).trim();
   } else {
     unit = rest;
   }
-  
+
   return { mnemonic, unit, value, description };
 }
 
