@@ -16,13 +16,16 @@ import {
   Activity,
   ChevronRight,
   Sparkles,
+  X,
 } from "lucide-react";
 
 interface SidebarProps {
   currentRole: string;
+  mobileOpen?: boolean;
+  onCloseMobileNav?: () => void;
 }
 
-export function Sidebar({ currentRole }: SidebarProps) {
+export function Sidebar({ currentRole, mobileOpen = false, onCloseMobileNav }: SidebarProps) {
   const pathname = usePathname();
 
   const navItems = [
@@ -41,11 +44,11 @@ export function Sidebar({ currentRole }: SidebarProps) {
     navItems.push({ label: "Admin Panel", href: "/admin", icon: Settings });
   }
 
-  return (
-    <aside className="w-64 bg-wellqc-panel border-r border-wellqc-border flex flex-col h-screen sticky top-0 z-30 select-none">
+  const sidebarContent = (
+    <aside className="w-64 bg-wellqc-panel border-r border-wellqc-border flex flex-col h-full select-none">
       {/* Brand & Logo */}
       <div className="p-4 border-b border-wellqc-border flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center space-x-3 group">
+        <Link href="/dashboard" onClick={onCloseMobileNav} className="flex items-center space-x-3 group">
           <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-blue-600 via-cyan-500 to-emerald-400 p-0.5 shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
             <div className="w-full h-full bg-wellqc-dark rounded-[7px] flex items-center justify-center">
               <Activity className="w-5 h-5 text-cyan-400 animate-pulse-glow" />
@@ -60,12 +63,22 @@ export function Sidebar({ currentRole }: SidebarProps) {
             </span>
           </div>
         </Link>
+
+        {onCloseMobileNav && (
+          <button
+            onClick={onCloseMobileNav}
+            className="md:hidden p-1.5 text-slate-400 hover:text-white rounded-lg"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Quick Ingestion CTA Banner */}
       <div className="p-3">
         <Link
           href="/upload"
+          onClick={onCloseMobileNav}
           className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-gradient-to-r from-blue-600/30 to-cyan-500/20 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 text-xs font-semibold shadow-md shadow-cyan-500/10 transition-all hover:translate-y-[-1px]"
         >
           <div className="flex items-center space-x-2">
@@ -90,6 +103,7 @@ export function Sidebar({ currentRole }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onCloseMobileNav}
               className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 isActive
                   ? "bg-blue-600/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
@@ -119,5 +133,27 @@ export function Sidebar({ currentRole }: SidebarProps) {
         </div>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <div className="hidden md:flex h-screen sticky top-0 z-30">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile Drawer Overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div
+            onClick={onCloseMobileNav}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+          />
+          <div className="relative z-10 w-64 h-full shadow-2xl animate-in slide-in-from-left duration-200">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

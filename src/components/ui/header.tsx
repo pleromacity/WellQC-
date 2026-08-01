@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ActivityListItem } from "@/lib/api-types";
-import { Search, Bell, Shield, User, ChevronDown, Check, Globe, LogOut } from "lucide-react";
+import { Search, Bell, Shield, ChevronDown, Check, Globe, LogOut, Menu } from "lucide-react";
 
 interface HeaderProps {
   currentRole: string;
@@ -13,9 +13,16 @@ interface HeaderProps {
     department: string;
   };
   onLogout: () => void;
+  onToggleMobileNav?: () => void;
 }
 
-export function Header({ currentRole, onRoleChange, currentUser, onLogout }: HeaderProps) {
+export function Header({
+  currentRole,
+  onRoleChange,
+  currentUser,
+  onLogout,
+  onToggleMobileNav,
+}: HeaderProps) {
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [activities, setActivities] = useState<ActivityListItem[]>([]);
@@ -56,21 +63,30 @@ export function Header({ currentRole, onRoleChange, currentUser, onLogout }: Hea
   const activeRoleObj = roles.find((r) => r.id === currentRole) || roles[1];
 
   return (
-    <header className="h-16 bg-wellqc-panel/80 backdrop-blur-md border-b border-wellqc-border px-6 flex items-center justify-between sticky top-0 z-20">
-      {/* Global Search Bar */}
-      <div className="flex items-center space-x-4 flex-1 max-w-xl">
+    <header className="h-16 bg-wellqc-panel/80 backdrop-blur-md border-b border-wellqc-border px-4 md:px-6 flex items-center justify-between sticky top-0 z-20">
+      {/* Left section with Mobile Menu Toggle & Global Search Bar */}
+      <div className="flex items-center space-x-3 flex-1 max-w-xl">
+        {/* Mobile Hamburger Button */}
+        <button
+          onClick={onToggleMobileNav}
+          className="md:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-wellqc-card border border-wellqc-border focus:outline-none"
+          aria-label="Toggle Navigation Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
         <div className="relative w-full">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search wells, API/UWI numbers, operators, fields, or log curves..."
-            className="w-full bg-wellqc-card border border-wellqc-border rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition-all font-mono"
+            placeholder="Search wells, API/UWI numbers, operators..."
+            className="w-full bg-wellqc-card border border-wellqc-border rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition-all font-mono"
           />
         </div>
       </div>
 
       {/* Right Toolbar Controls */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 md:space-x-4">
         {/* Workspace Region Selector */}
         <div className="hidden lg:flex items-center space-x-2 text-xs text-wellqc-muted px-3 py-1 rounded-md bg-wellqc-card/40 border border-wellqc-border font-mono">
           <Globe className="w-3.5 h-3.5 text-cyan-400" />
@@ -81,10 +97,11 @@ export function Header({ currentRole, onRoleChange, currentUser, onLogout }: Hea
         <div className="relative">
           <button
             onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-            className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border text-xs font-semibold font-mono transition-all ${activeRoleObj.color}`}
+            className={`flex items-center space-x-1.5 md:space-x-2 px-2.5 md:px-3 py-1.5 rounded-lg border text-[11px] md:text-xs font-semibold font-mono transition-all ${activeRoleObj.color}`}
           >
             <Shield className="w-3.5 h-3.5" />
-            <span>Role: {activeRoleObj.name}</span>
+            <span className="hidden sm:inline">Role: {activeRoleObj.name}</span>
+            <span className="sm:hidden">{activeRoleObj.id}</span>
             <ChevronDown className="w-3.5 h-3.5 opacity-70" />
           </button>
 
@@ -129,7 +146,7 @@ export function Header({ currentRole, onRoleChange, currentUser, onLogout }: Hea
           </button>
 
           {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-wellqc-card border border-wellqc-border rounded-xl shadow-2xl p-3 z-50">
+            <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-wellqc-card border border-wellqc-border rounded-xl shadow-2xl p-3 z-50">
               <div className="flex items-center justify-between pb-2 border-b border-wellqc-border text-xs font-semibold text-white">
                 <span>Recent Database Activity</span>
                 <span className="text-[10px] font-mono text-cyan-400">{activities.length} New</span>
@@ -154,15 +171,20 @@ export function Header({ currentRole, onRoleChange, currentUser, onLogout }: Hea
         </div>
 
         {/* User Profile */}
-        <div className="flex items-center space-x-3 pl-2 border-l border-wellqc-border">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-md">
+        <div className="flex items-center space-x-2 md:space-x-3 pl-2 border-l border-wellqc-border">
+          <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-md">
             {currentUser.name.charAt(0)}
           </div>
           <div className="hidden md:block text-left">
             <div className="text-xs font-semibold text-slate-100">{currentUser.name}</div>
             <div className="text-[10px] text-wellqc-muted font-mono">{currentUser.department}</div>
           </div>
-          <button onClick={onLogout} title="Sign out" aria-label="Sign out" className="p-2 text-slate-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors">
+          <button
+            onClick={onLogout}
+            title="Sign out"
+            aria-label="Sign out"
+            className="p-1.5 md:p-2 text-slate-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+          >
             <LogOut className="w-4 h-4" />
           </button>
         </div>

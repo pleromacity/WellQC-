@@ -9,6 +9,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [currentRole, setCurrentRole] = useState("PETROPHYSICIST");
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string; department: string } | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me", { cache: "no-store" }).then(async (response) => {
@@ -32,15 +33,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-wellqc-dark">
-      <Sidebar currentRole={currentRole} />
+      <Sidebar
+        currentRole={currentRole}
+        mobileOpen={mobileNavOpen}
+        onCloseMobileNav={() => setMobileNavOpen(false)}
+      />
       <div className="flex-1 flex flex-col min-w-0">
         <Header
           currentRole={currentRole}
           onRoleChange={setCurrentRole}
           currentUser={currentUser}
           onLogout={handleLogout}
+          onToggleMobileNav={() => setMobileNavOpen((prev) => !prev)}
         />
-        <main className="flex-1 p-6 overflow-y-auto bg-gradient-to-b from-wellqc-dark via-wellqc-dark to-[#080b11]">
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto bg-gradient-to-b from-wellqc-dark via-wellqc-dark to-[#080b11]">
           {children}
         </main>
       </div>

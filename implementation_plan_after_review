@@ -1,0 +1,82 @@
+# Missing Value Handling Alignment, Imputation Benchmarking & Responsive UI Plan
+
+## Executive Summary
+This implementation plan addresses the feedback provided by petrophysical stakeholders and interviewers regarding missing value handling in **WellQC+**. It aligns system capabilities with domain-specific missing value diagnostics, introduces an evidence-based multi-method imputation benchmarking suite (KNN, Linear, Mean/Median, Spline, Row Dropping), and enhances responsive layout design across Mobile, Tablet, and Desktop viewports.
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Key Stakeholder Alignment Highlights:**
+> 1. **Root Cause Analysis (Why Data is Missing):** Automatically categorizes missing points by logging conditions (e.g., Casing Shoe boundaries, Borehole Washout, Sensor Telemetry Dropout, Off-Bottom intervals).
+> 2. **Multi-Method Imputation Benchmarking:** Benchmarks Linear Interpolation baseline against **K-Nearest Neighbours (KNN)**, **Mean/Median**, **Spline**, and **Row Dropping** using RMSE, MAE, and R² validation scores.
+> 3. **Threshold-Based Listwise Deletion:** Provides configurable thresholds (e.g. drop rows if missing % < 2%) to prevent unnecessary synthetic data generation when missingness is trivial.
+> 4. **LAS Null Indicator Parsing:** Handles standard (`-999.25`, `-9999`) and custom header null representations defined in the `~Well` section.
+> 5. **Full Mobile & Tablet Responsiveness:** Adds slide-out mobile navigation drawer, fluid grid layouts, and scrollable data tables for seamless access on smartphones, iPads/tablets, and desktop screens.
+
+---
+
+## Proposed Technical Changes
+
+### 1. Petrophysical Imputation & Benchmarking Engine
+#### [NEW] [imputation-engine.ts](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/imputation-engine.ts)
+- Implement petrophysical missing value cause diagnostic (`detectMissingValueOrigins`).
+- Implement LAS null representation parser and normalizer.
+- Implement multi-method imputation algorithms:
+  - **Linear Interpolation** (Baseline continuous depth interpolation)
+  - **KNN Imputation** (K-Nearest Neighbours using multi-curve spatial/petrophysical feature distance)
+  - **Statistical Imputer** (Mean & Median central tendency strategy)
+  - **Cubic Spline Interpolation** (Smooth curve fitting)
+  - **Row Dropping / Listwise Deletion** (Threshold-based row removal)
+- Implement empirical cross-validation benchmarking (`benchmarkImputationMethods`) returning RMSE, MAE, R², variance ratio, and execution time.
+
+#### [MODIFY] [quality-engine.ts](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/quality-engine.ts)
+- Integrate missing value root cause diagnostics into the quality engine output.
+- Pass null indicator metadata to curve health summaries.
+
+---
+
+### 2. UI Components & QA Engine Upgrade
+#### [NEW] [imputation-benchmark-modal.tsx](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/well-log/imputation-benchmark-modal.tsx)
+- Create interactive modal for missing value root cause breakdown, threshold tuning, and multi-method benchmarking visualization.
+- Display comparative benchmark cards & metric breakdown table (RMSE, MAE, R² score, performance rank).
+
+#### [MODIFY] [qa-engine page](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/qa-engine/page.tsx)
+- Integrate missing value root cause diagnostic panel and imputation benchmarking controls.
+- Allow users to set drop thresholds (%) and run evidence-backed imputation benchmarking directly.
+
+---
+
+### 3. Cross-Device Responsive Layout Enhancements
+#### [MODIFY] [header.tsx](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/ui/header.tsx)
+- Add hamburger menu toggle button for mobile/tablet screen sizes.
+- Optimize search bar and RBAC role switcher layout for mobile screens.
+
+#### [MODIFY] [sidebar.tsx](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/ui/sidebar.tsx)
+- Convert fixed sidebar to responsive drawer overlay on small screens (`< md`) with backdrop overlay.
+
+#### [MODIFY] [app-shell.tsx](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/layout/app-shell.tsx)
+- Wire mobile menu drawer state between `Header` and `Sidebar`.
+
+#### [MODIFY] [dashboard page](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/dashboard/page.tsx), [wells page](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/wells/page.tsx), [upload page](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/upload/page.tsx), [analytics page](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/analytics/page.tsx), [comparison page](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/comparison/page.tsx)
+- Wrap data tables and chart canvases in responsive overflow containers (`overflow-x-auto`).
+- Ensure grid columns scale dynamically (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`).
+
+---
+
+## Verification Plan
+
+### Automated Build Verification
+- Execute `cmd /c npm run build` to verify clean TypeScript compilation and Next.js bundle generation.
+
+### Manual & Functional Verification
+1. **Missing Value & Imputation Benchmark Test**:
+   - Verify LAS missing value null indicator parsing (`-999.25`, `-9999`, etc.).
+   - Verify missing value root cause diagnostic detection (Casing Shoe, Washout, Telemetry Loss).
+   - Test benchmarking suite across KNN, Linear, Mean/Median, Spline, and Row Dropping.
+   - Verify ground-truth accuracy metrics (RMSE, MAE, R² score).
+2. **Responsive Navigation & Viewport Testing**:
+   - Test Mobile (375px), Tablet (768px), and Desktop (1440px) viewports.
+   - Test mobile drawer toggle menu opening and closing seamlessly.
+   - Verify log charts, data tables, and modal dialogs fit responsive viewports without horizontal layout breaks.
