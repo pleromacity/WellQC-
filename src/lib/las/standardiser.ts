@@ -30,7 +30,7 @@ export const STANDARD_CURVES: Record<string, StandardCurveDef> = {
     acceptableUnits: ['GAPI', 'API', 'EU', 'CPS'],
     aliases: ['GR', 'GAMMA', 'GRC', 'GAM', 'GR_CORR', 'GRR', 'SGR', 'ECGR', 'HGR'],
     minPhysical: 0,
-    maxPhysical: 500,
+    maxPhysical: 150,
     description: 'Natural gamma ray radiation log',
   },
   RHOB: {
@@ -40,8 +40,8 @@ export const STANDARD_CURVES: Record<string, StandardCurveDef> = {
     standardUnit: 'G/CC',
     acceptableUnits: ['G/CC', 'G/CM3', 'KGM3', 'KG/M3', 'KG/M^3', 'G/C3', 'KGM/-3'],
     aliases: ['RHOB', 'DEN', 'RHOZ', 'BDEN', 'ZDEN', 'RHO', 'RHOB_CORR', 'RHO8'],
-    minPhysical: 1.0,
-    maxPhysical: 3.2,
+    minPhysical: 1.65,
+    maxPhysical: 2.65,
     description: 'Formation bulk density log',
   },
   NPHI: {
@@ -51,8 +51,8 @@ export const STANDARD_CURVES: Record<string, StandardCurveDef> = {
     standardUnit: 'V/V',
     acceptableUnits: ['V/V', 'PU', 'P.U.', '%', 'PERCENT', 'PCT', 'DECIMAL', 'M3/M3'],
     aliases: ['NPHI', 'NEUT', 'CNL', 'NPOR', 'TNPH', 'PHIN', 'NPHI_LS', 'NPLC', 'NPR'],
-    minPhysical: -0.05,
-    maxPhysical: 0.60,
+    minPhysical: 0,
+    maxPhysical: 0.6,
     description: 'Thermal neutron porosity log',
   },
   DT: {
@@ -63,7 +63,7 @@ export const STANDARD_CURVES: Record<string, StandardCurveDef> = {
     acceptableUnits: ['US/F', 'US/FT', 'US/M', 'US/MET', 'US/MTR', 'US/METER', 'US/METRE'],
     aliases: ['DT', 'DTCO', 'AC', 'DTC', 'SONI', 'DELTA_T', 'DTC1', 'DT35'],
     minPhysical: 40,
-    maxPhysical: 200,
+    maxPhysical: 240,
     description: 'Compressional wave acoustic travel time',
   },
   RT: {
@@ -73,8 +73,8 @@ export const STANDARD_CURVES: Record<string, StandardCurveDef> = {
     standardUnit: 'OHMM',
     acceptableUnits: ['OHMM', 'OHM.M', 'OHM-M', 'OHMS'],
     aliases: ['RT', 'ILD', 'LLD', 'RD', 'RES_DEEP', 'AT90', 'RDEP', 'HDRS', 'R40O', 'AO90'],
-    minPhysical: 0.05,
-    maxPhysical: 5000,
+    minPhysical: 0.02,
+    maxPhysical: 2000,
     description: 'Deep un-invaded formation resistivity',
   },
   CALI: {
@@ -84,8 +84,8 @@ export const STANDARD_CURVES: Record<string, StandardCurveDef> = {
     standardUnit: 'IN',
     acceptableUnits: ['IN', 'INCH', 'MM', 'CM', 'MILLIMETER', 'CENTIMETER'],
     aliases: ['CALI', 'CAL', 'HCAL', 'CALS', 'CALP', 'BS', 'CLP', 'HDAR'],
-    minPhysical: 4.0,
-    maxPhysical: 30.0,
+    minPhysical: 6,
+    maxPhysical: 16,
     description: 'Borehole diameter measurement log',
   },
   PEF: {
@@ -117,7 +117,7 @@ export const STANDARD_CURVES: Record<string, StandardCurveDef> = {
     standardUnit: 'OHMM',
     acceptableUnits: ['OHMM', 'OHM.M'],
     aliases: ['MSFL', 'RXO', 'MICRO', 'RFOC', 'RMFL'],
-    minPhysical: 0.05,
+    minPhysical: 0.02,
     maxPhysical: 2000,
     description: 'Flushed zone micro-resistivity',
   },
@@ -128,7 +128,7 @@ export const STANDARD_CURVES: Record<string, StandardCurveDef> = {
     standardUnit: 'OHMM',
     acceptableUnits: ['OHMM', 'OHM.M'],
     aliases: ['LLS', 'ILM', 'RS', 'RES_SHAL', 'AT20', 'RLA2'],
-    minPhysical: 0.05,
+    minPhysical: 0.2,
     maxPhysical: 2000,
     description: 'Shallow invaded zone resistivity',
   },
@@ -151,7 +151,7 @@ export interface StandardisationResult {
 export function standardiseMnemonic(rawMnemonic: string, rawUnit: string = ''): StandardisationResult {
   const cleanMnem = rawMnemonic.trim().toUpperCase();
   const cleanUnit = rawUnit.trim().toUpperCase();
-  
+
   // Exact match against standard keys
   if (STANDARD_CURVES[cleanMnem]) {
     const std = STANDARD_CURVES[cleanMnem];
