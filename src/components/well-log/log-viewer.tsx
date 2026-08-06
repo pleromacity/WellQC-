@@ -146,11 +146,10 @@ export function WellLogViewer({
           <div className="flex items-center bg-wellqc-card border border-wellqc-border rounded-xl p-1 shadow-inner">
             <button
               onClick={() => setViewMode("CLASSIC_PAPER")}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                viewMode === "CLASSIC_PAPER"
-                  ? "bg-red-600 text-white shadow-md shadow-red-600/30"
-                  : "text-slate-400 hover:text-white"
-              }`}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${viewMode === "CLASSIC_PAPER"
+                ? "bg-red-600 text-white shadow-md shadow-red-600/30"
+                : "text-slate-400 hover:text-white"
+                }`}
             >
               <FileText className="w-3.5 h-3.5" />
               <span>Classic Paper Borehole Log</span>
@@ -158,11 +157,10 @@ export function WellLogViewer({
 
             <button
               onClick={() => setViewMode("DARK_MODERN")}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                viewMode === "DARK_MODERN"
-                  ? "bg-cyan-500 text-black shadow-md shadow-cyan-500/30"
-                  : "text-slate-400 hover:text-white"
-              }`}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${viewMode === "DARK_MODERN"
+                ? "bg-cyan-500 text-black shadow-md shadow-cyan-500/30"
+                : "text-slate-400 hover:text-white"
+                }`}
             >
               <Layout className="w-3.5 h-3.5" />
               <span>Dark Subsurface View</span>
@@ -254,8 +252,8 @@ export function WellLogViewer({
               <div className="text-sm font-black text-red-600">RESISTIVITY</div>
               <div className="text-xs text-red-600 font-mono">RT (ohm.m)</div>
               <div className="flex justify-between text-[11px] font-mono px-2 pt-1 border-t border-slate-300 mt-1">
-                <span>1</span>
-                <span>100</span>
+                <span>0.2</span>
+                <span>2000</span>
               </div>
             </div>
 
@@ -266,7 +264,7 @@ export function WellLogViewer({
               <div className="text-xs text-blue-700 font-mono">DT (&mu;s/ft)</div>
               <div className="flex justify-between text-[11px] font-mono px-2 pt-1 border-t border-slate-300 mt-1">
                 <span>40</span>
-                <span>100</span>
+                <span>240</span>
               </div>
             </div>
           </div>
@@ -344,7 +342,7 @@ export function WellLogViewer({
                     strokeWidth="2.5"
                     strokeLinejoin="round"
                     strokeLinecap="round"
-                    points={renderSvgCurve(rtValues, 1, 100, 300, "#dc2626")}
+                    points={renderSvgCurve(rtValues, 0.2, 2000, 300, "#dc2626")}
                   />
                 </svg>
 
@@ -375,7 +373,7 @@ export function WellLogViewer({
                     strokeWidth="2.5"
                     strokeLinejoin="round"
                     strokeLinecap="round"
-                    points={renderSvgCurve(dtValues, 40, 100, 220, "#1d4ed8")}
+                    points={renderSvgCurve(dtValues, 40, 240, 220, "#1d4ed8")}
                   />
                 </svg>
 
@@ -444,7 +442,7 @@ export function WellLogViewer({
             <div className="bg-wellqc-panel border border-wellqc-border rounded-xl p-3">
               <div className="flex items-center justify-between pb-2 border-b border-wellqc-border mb-2 text-xs font-bold text-red-400">
                 <span>TRACK 2: RESISTIVITY (RT)</span>
-                <span>1 – 100 OHMM</span>
+                <span>0.2 – 2000 OHMM</span>
               </div>
               <div className="h-96 relative bg-wellqc-dark rounded-lg overflow-hidden p-2 border border-wellqc-border">
                 <svg className="w-full h-full overflow-visible">
@@ -452,7 +450,7 @@ export function WellLogViewer({
                     fill="none"
                     stroke="#ef4444"
                     strokeWidth="2"
-                    points={renderSvgCurve(rtValues, 1, 100, 240, "#ef4444")}
+                    points={renderSvgCurve(rtValues, 0.2, 2000, 240, "#ef4444")}
                   />
                 </svg>
               </div>
@@ -462,7 +460,7 @@ export function WellLogViewer({
             <div className="bg-wellqc-panel border border-wellqc-border rounded-xl p-3">
               <div className="flex items-center justify-between pb-2 border-b border-wellqc-border mb-2 text-xs font-bold text-cyan-400">
                 <span>TRACK 3: SONIC (DT)</span>
-                <span>40 – 100 &mu;s/ft</span>
+                <span>40 – 240 &mu;s/ft</span>
               </div>
               <div className="h-96 relative bg-wellqc-dark rounded-lg overflow-hidden p-2 border border-wellqc-border">
                 <svg className="w-full h-full overflow-visible">
@@ -470,7 +468,7 @@ export function WellLogViewer({
                     fill="none"
                     stroke="#06b6d4"
                     strokeWidth="2"
-                    points={renderSvgCurve(dtValues, 40, 100, 240, "#06b6d4")}
+                    points={renderSvgCurve(dtValues, 40, 240, 240, "#06b6d4")}
                   />
                 </svg>
               </div>
