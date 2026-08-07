@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, FormEvent } from "react";
+import { useState, SyntheticEvent } from "react";
 import { Database, KeyRound, Mail, UserRound, LoaderCircle } from "lucide-react";
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
@@ -16,8 +16,9 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [saving, setSaving] = useState(false);
   const isRegister = mode === "register";
 
-  async function submit(event: FormEvent) {
+  async function submit(event: SyntheticEvent) {
     event.preventDefault();
+
 
     setSaving(true);
     setError("");
