@@ -1,28 +1,28 @@
-# WellQC+ — 3-Month Development Sprint Plan
+# WellQC+ — 3-Month Development Sprint Plan (Updated Team Structure)
 
-> **Project:** WellQC+ — AI-Powered Well Log Quality Assurance Platform
-> **Team:** 2 Software Engineers · 3 Data Analysts · 3 Cloud Engineers
-> **Timeline:** 3 Months (12 Weeks) · 6 × 2-Week Sprints
+> **Project:** WellQC+ — AI-Powered Well Log Quality Assurance & Subsurface Analytics Platform  
+> **Team Structure (8 Members):** 2 Software Engineers · 4 Data Analysts · 2 Cloud Engineers  
+> **Timeline:** 3 Months (12 Weeks) · 6 × 2-Week Sprints  
 > **Methodology:** Agile Scrum with 2-week sprint cycles
 
 ---
 
-## Team Reference
+## 👥 Team Roles & Assigned Domains
 
-| ID | Role | Short Name |
-|----|------|------------|
-| SE1 | Software Engineer 1 — Core Engine Lead | **SE1** |
-| SE2 | Software Engineer 2 — Frontend & API Lead | **SE2** |
-| DA1 | Data Analyst 1 — Petrophysical Domain Expert | **DA1** |
-| DA2 | Data Analyst 2 — Missing Value & Imputation | **DA2** |
-| DA3 | Data Analyst 3 — Analytics & Reporting | **DA3** |
-| CE1 | Cloud Engineer 1 — Infrastructure & CI/CD | **CE1** |
-| CE2 | Cloud Engineer 2 — Database & ORM | **CE2** |
-| CE3 | Cloud Engineer 3 — Python Microservice & Security | **CE3** |
+| ID | Role | Name / Title | Primary Domain & Codebase Files |
+|----|------|--------------|---------------------------------|
+| **SE1** | Software Engineer 1 | Core Engine & AI Lead | [`parser.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/parser.ts), [`quality-engine.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/quality-engine.ts), [`ai-analyzer.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/ai-analyzer.ts), [`exporter.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/exporter.ts), [`log-viewer.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/well-log/log-viewer.tsx) |
+| **SE2** | Software Engineer 2 | Full-Stack UI & API Lead | App Shell (`app-shell.tsx`, `sidebar.tsx`, `header.tsx`), Auth (`auth.ts`), Upload Workspace (`upload/page.tsx`), Wells (`wells/page.tsx`), Dashboard (`dashboard/page.tsx`), API Routes (`/api/*`) |
+| **DA1** | Data Analyst 1 | Petrophysical Rules & Standardisation Lead | Standardisation Dictionary (`standardiser.ts`), Physical Min/Max Bounds, Mnemonic Aliases, Unit Conversions |
+| **DA2** | Data Analyst 2 | Missing Value Diagnostics & Imputation Lead | Root Cause Diagnostics (`imputation-engine.ts`), KNN / Spline / Linear Benchmarking, RMSE / MAE Metrics |
+| **DA3** | Data Analyst 3 | Basin Intelligence & Field Analytics Lead | Dashboard KPIs, 7-Day Rolling Trend, Field Performance Ranking, Anomaly Distribution Charts (`analytics/page.tsx`) |
+| **DA4** | Data Analyst 4 | Reporting & Quality Audit Lead | PDF Audit Certificates (jsPDF), Excel/CSV Export templates (`reports/page.tsx`), Niger Delta Test LAS Dataset Validation |
+| **CE1** | Cloud Engineer 1 | DevOps, Deployment & CI/CD Lead | Vercel Deployment (`vercel.json`), Domain & SSL HTTPS, GitHub Actions CI/CD, Load Testing & Monitoring |
+| **CE2** | Cloud Engineer 2 | Database, Security & Microservice Lead | Prisma Schema (`schema.prisma`), Neon PostgreSQL (AWS us-east-1), Multi-Tenant Data Isolation (`ownerId`), Python FastAPI Microservice (`main.py`) |
 
 ---
 
-## Sprint Overview (12-Week Arc)
+## 🗓️ Sprint Overview (12-Week Arc)
 
 ```
 Month 1                        Month 2                        Month 3
@@ -30,671 +30,315 @@ Month 1                        Month 2                        Month 3
 Sprint 1         Sprint 2      Sprint 3        Sprint 4      Sprint 5         Sprint 6
 Wk 1–2          Wk 3–4        Wk 5–6          Wk 7–8        Wk 9–10          Wk 11–12
 Discovery &     Foundation    Core Engine &   Advanced      QA, Security     Production
-Architecture    & Setup       LAS Pipeline    Features      & Compliance     Launch
+Architecture    & Auth Setup  LAS Pipeline    Features      & Compliance     Launch & Demo
 ```
 
 ---
 
 ---
 
-# 🔵 SPRINT 1 — Discovery & Architecture
+# 🔵 SPRINT 1 — Discovery, Architecture & Setup
 
-**Duration:** Week 1–2
-**Theme:** Define the problem, agree on technology, lay the architectural foundation
-
----
-
-## Sprint Goal
-
-> Produce a shared understanding of what WellQC+ does, why it exists, and how it will be built. By the end of Sprint 1, every team member knows their domain and the technical architecture is locked.
+**Duration:** Week 1–2  
+**Theme:** Lock technical stack, petrophysical boundaries, database design, and cloud environments.
 
 ---
 
-## Sprint 1 Tickets
+### 💻 Software Engineers
+- **SE1 (Core Engine Lead)**
+  - Establish `ParsedLAS` interface specification covering `~VERSION`, `~WELL`, `~CURVE`, and `~ASCII` data structures.
+  - Architect the 3-stage pipeline contract: `Parser` → `Standardiser` → `Quality Engine` → `Exporter`.
+  - Set up TypeScript strict mode rules and base type declarations in `src/lib/api-types.ts`.
+- **SE2 (Full-Stack UI Lead)**
+  - Initialize Next.js 15 App Router project with TypeScript and Tailwind CSS.
+  - Configure path aliases (`@/*`), ESLint, Prettier, and basic directory structure.
+  - Build initial project scaffold and Git repository.
 
-### DA1 — Petrophysical Requirements Workshop
-**WQC-001** *(Story Points: 5)*
-- Compile list of all standard log curves: GR, RHOB, NPHI, DT, RT, CALI, PEF, SP
-- Define physical min/max limits for each curve from API RP 40 and SLB Log Interpretation Charts
-- Document standard mnemonic aliases (`GAMMA` → `GR`, `DEN` → `RHOB`, `CNL` → `NPHI`, etc.)
-- Deliver: `STANDARD_CURVES` constant table (input for `standardiser.ts`)
-- **Output used in:** [`src/lib/las/standardiser.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/standardiser.ts)
+### 📊 Data Analysts
+- **DA1 (Petrophysical Rules Lead)**
+  - Research and compile standard petrophysical physical bounds for 8 core curve types:
+    - `GR` (0–150 GAPI), `RHOB` (1.65–2.65 g/cc), `NPHI` (0–0.60 v/v), `DT` (40–240 μs/ft), `RT` (0.02–2000 OHMM), `CALI` (6–16 IN), `PEF` (0.5–15.0 B/E), `SP` (-250–250 MV).
+  - List acceptable unit strings per curve (`GAPI`, `G/CC`, `V/V`, `US/F`, `OHMM`, `IN`).
+- **DA2 (Imputation Lead)**
+  - Define petrophysical root cause classification logic for missing values:
+    - *Casing Shoe Boundary*: Shallow depth null transitions.
+    - *Borehole Washout*: High CALI readings (>15.5 in) correlating with missing density/neutron points.
+    - *Telemetry Dropout*: Large contiguous missing blocks across all channels.
+    - *Off-Bottom Window*: Missing readings at start/stop depths.
+- **DA3 (Basin Intelligence Lead)**
+  - Define dashboard metrics requirement specification: 8 KPI cards, 7-day trend metrics, Field Performance scoring rules.
+- **DA4 (Reporting & Quality Auditor)**
+  - Define PDF audit certificate layout requirements and required compliance header fields.
 
----
-
-### DA2 — Missing Value Research Brief
-**WQC-002** *(Story Points: 3)*
-- Document the 4 root causes of missing data in well logs:
-  - Casing shoe transitions
-  - Borehole washout / cave-in (correlated with high Caliper readings)
-  - Telemetry dropout (large contiguous null blocks across all channels)
-  - Off-bottom survey window (missing at start/stop logging depths)
-- Deliver: Written brief shared with SE1 — becomes the basis for `imputation-engine.ts`
-
----
-
-### DA3 — KPI Framework Definition
-**WQC-003** *(Story Points: 2)*
-- Define the 8 dashboard KPI cards: Total Wells, LAS Files Uploaded, Average Quality Score, Curves Analysed, Errors Detected, Missing Curves, Anomalies Found, Cleaned Today
-- Define the 7-day rolling trend dimensions: avgScore, filesUploaded, anomalies
-- Define Field Performance grouping logic (by `fieldName`)
-
----
-
-### SE1 — Technology Decision & Architecture Design
-**WQC-004** *(Story Points: 8)*
-- Evaluate and lock the full-stack technology decisions:
-  - **Frontend/API:** Next.js 15 App Router (TypeScript)
-  - **Styling:** Tailwind CSS
-  - **Database ORM:** Prisma
-  - **Database:** PostgreSQL (Neon — serverless, pooled)
-  - **Hosting:** Vercel
-  - **Python service:** FastAPI + `lasio` + `scikit-learn`
-- Produce architecture diagram:
-  ```
-  Browser → HTTPS → Vercel (Next.js) → Prisma → Neon PostgreSQL
-                                      ↓
-                               Python FastAPI Microservice
-  ```
-- Decide file structure (`src/app/`, `src/lib/las/`, `src/components/`, `prisma/`)
-
----
-
-### SE2 — Project Initialisation & Toolchain
-**WQC-005** *(Story Points: 5)*
-- Run `npx create-next-app@latest` with TypeScript, Tailwind, App Router
-- Set up ESLint, Prettier, `tsconfig.json` with `@/` path alias
-- Add `package.json` scripts: `dev`, `build`, `lint`, `db:push`, `db:studio`
-- Add `.gitignore` (ensure `.env`, `*.db`, `.next/` are excluded)
-- Push initial empty project to Git repository
-- **Produces:** [`package.json`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/package.json), [`tsconfig.json`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/tsconfig.json)
-
----
-
-### CE1 — Cloud Environment Setup
-**WQC-006** *(Story Points: 5)*
-- Create Vercel project, link to GitHub repository
-- Configure Vercel environment variables: `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`
-- Set up CI/CD: every push to `main` triggers `npm run build` on Vercel
-- Verify first deployment reaches `https://*.vercel.app`
-
----
-
-### CE2 — Database Provisioning
-**WQC-007** *(Story Points: 5)*
-- Provision Neon PostgreSQL database (`neondb`) on AWS us-east-1
-- Create pooled (`-pooler`) and direct connection strings
-- Add `DATABASE_URL` and `DIRECT_URL` to `.env` and Vercel environment
-- Install Prisma: `npm install prisma @prisma/client`
-- Run `npx prisma init` — create skeleton `schema.prisma`
-
----
-
-### CE3 — Python Service Skeleton
-**WQC-008** *(Story Points: 3)*
-- Create `services/python_parser/` directory
-- Create `requirements.txt`: `fastapi`, `uvicorn`, `lasio`, `pandas`, `numpy`, `scikit-learn`
-- Write skeleton `main.py` with health-check endpoint `GET /health`
-- Document how to run locally: `uvicorn main:app --reload`
-
----
-
-## Sprint 1 Definition of Done
-
-- [ ] Technology choices locked and communicated to all 8 team members
-- [ ] Git repository created with initial Next.js project
-- [ ] Vercel project live at a public `https://` URL (empty shell is fine)
-- [ ] Neon PostgreSQL provisioned and connection strings tested
-- [ ] Physical curve limits table drafted by DA1
-- [ ] Missing value brief written by DA2
+### ☁️ Cloud Engineers
+- **CE1 (DevOps Lead)**
+  - Create Vercel project linked to GitHub repository (`main` and `develop` branches).
+  - Configure build commands and environment variable bindings in Vercel dashboard.
+- **CE2 (Database & Security Lead)**
+  - Provision Neon PostgreSQL database instance (`neondb`) on AWS us-east-1 with pooled (`-pooler`) and direct connection strings.
+  - Initialize Prisma ORM (`npx prisma init`) and write initial schema draft.
+  - Set up Python FastAPI microservice skeleton in `services/python_parser/`.
 
 ---
 
 ---
 
-# 🟢 SPRINT 2 — Foundation & Database Schema
+# 🟢 SPRINT 2 — Foundation, Auth & Multi-Tenant Database
 
-**Duration:** Week 3–4
-**Theme:** Build the data model, authentication, and application shell
-
----
-
-## Sprint Goal
-
-> By the end of Sprint 2, a user can register, log in, and see the application shell. The complete database schema is live on Neon PostgreSQL.
+**Duration:** Week 3–4  
+**Theme:** Full Prisma schema, authentication stack, route protection middleware, and responsive app shell.
 
 ---
 
-## Sprint 2 Tickets
+### 💻 Software Engineers
+- **SE1 (Core Engine Lead)**
+  - Build [`src/lib/auth.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/auth.ts): password hashing with `scrypt` + 16-byte random salt, HMAC-SHA256 session token generation with 7-day expiry.
+  - Implement `verifyPassword` using `crypto.timingSafeEqual` to prevent timing attacks.
+  - Create `readSession` and `getCurrentUser` session helpers.
+- **SE2 (Full-Stack UI Lead)**
+  - Build Auth API routes: `POST /api/auth/login`, `POST /api/auth/register`, `POST /api/auth/logout`, `GET /api/auth/me`.
+  - Build `/login` and `/register` pages with form validation and httpOnly session cookies.
+  - Create root [`middleware.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/middleware.ts) protecting all app routes except `/login` and `/register`.
+  - Build responsive [`app-shell.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/layout/app-shell.tsx), [`sidebar.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/ui/sidebar.tsx) with mobile drawer navigation, and [`header.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/ui/header.tsx).
 
-### CE2 — Full Prisma Schema Design & Migration
-**WQC-009** *(Story Points: 8)*
-Design and push the complete database schema to Neon:
-- **`User`** — `id`, `email`, `passwordHash`, `role`, `department`, `ndaAcceptedAt`, `avatarUrl`
-- **`Well`** — `id`, `apiNo` (unique), `name`, `operatorName`, `fieldName`, `basin`, `country`, `latitude`, `longitude`, `tdFt`, `qualityScore`, `qualityGrade`, `ownerId → User`
-- **`Field`** — `id`, `name` (unique), `basin`, `country`
-- **`Operator`** — `id`, `name` (unique), `code`, `contactEmail`
-- **`LASFile`** — `id`, `wellId → Well`, `originalName`, `fileSizeKb`, `lasVersion`, `startDepth`, `stopDepth`, `nullValue`, `rawHeader`, `uploadedById → User`
-- **`Curve`** — `id`, `lasFileId → LASFile`, `originalMnemonic`, `standardMnemonic`, `unit`, `nullCount`, `totalPoints`, `nullPercentage`, `minVal`, `maxVal`, `meanVal`, `dataJson`
-- **`QualityReport`** — `id`, `wellId`, `lasFileId`, `overallScore`, `qualityGrade`, `completenessScore`, `consistencyScore`, `anomalyCount`, `aiSummary`, `recommendations`, `reportJson`
-- **`Anomaly`** — `id`, `qualityReportId`, `curveId`, `curveMnemonic`, `depthStart`, `depthEnd`, `anomalyType`, `severity`, `description`, `suggestedCorrection`, `status`
-- **`ActivityLog`** — `id`, `userId`, `userName`, `action`, `targetType`, `targetId`, `details`, `ipAddress`
-- **`APIToken`** — `id`, `token` (unique), `userId`, `lastUsedAt`
-- Run `npx prisma db push` to apply schema to Neon
-- **Produces:** [`prisma/schema.prisma`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/prisma/schema.prisma)
+### 📊 Data Analysts
+- **DA1 (Petrophysical Rules Lead)**
+  - Build comprehensive raw mnemonic alias dictionary mapping table for `standardiser.ts`:
+    - `GR` aliases: `['GR', 'GAMMA', 'GRC', 'GAM', 'GR_CORR', 'SGR']`
+    - `RHOB` aliases: `['RHOB', 'DEN', 'RHOZ', 'BDEN', 'ZDEN']`
+    - `NPHI` aliases: `['NPHI', 'NEUT', 'CNL', 'NPOR', 'TNPH']`
+    - `DT` aliases: `['DT', 'DTCO', 'AC', 'DTC', 'SONI']`
+- **DA2 (Imputation Lead)**
+  - Benchmark standard baseline algorithms (Linear Interpolation, Mean, Median, Row Dropping) on preliminary dataset.
+- **DA3 (Basin Intelligence Lead)**
+  - Map field names and operators in Niger Delta basin for database seeding.
+- **DA4 (Reporting & Quality Auditor)**
+  - Collect 10 real-world LAS test files representing Niger Delta wells for testing parser boundary limits.
 
----
-
-### SE1 — Authentication Library
-**WQC-010** *(Story Points: 8)*
-Build the complete auth stack in [`src/lib/auth.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/auth.ts):
-- `hashPassword(password)` — `scrypt` with 16-byte random salt, returns `salt:hash`
-- `verifyPassword(password, storedHash)` — `timingSafeEqual` constant-time compare
-- `createSession(user)` — base64url payload + HMAC-SHA256 signature, 7-day expiry
-- `readSession(token)` — verify signature, check expiry, return `SessionUser | null`
-- `getCurrentUser()` — reads `wellqc_session` cookie from `next/headers`
-- Set `AUTH_SECRET` in `.env` (64-char random string)
-
----
-
-### SE2 — Login & Register Pages + API Routes
-**WQC-011** *(Story Points: 8)*
-- Build `POST /api/auth/login` — verify password, set `httpOnly` session cookie
-- Build `POST /api/auth/register` — validate email uniqueness, hash password, create user
-- Build `POST /api/auth/logout` — clear cookie
-- Build `GET /api/auth/me` — return current session user
-- Build `/login` page — email + password form with loading state and error messages
-- Build `/register` page — name, email, password, role selector, department
-- **Produces:** [`src/app/api/auth/`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/api/auth), [`src/app/login/`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/login), [`src/app/register/`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/register)
-
----
-
-### SE2 — Route Protection Middleware
-**WQC-012** *(Story Points: 3)*
-Build [`middleware.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/middleware.ts) at the project root:
-- Public paths: `/login`, `/register`
-- Any unauthenticated request → redirect to `/login`
-- Authenticated user hitting `/login` → redirect to `/dashboard`
-- Matcher excludes: `api/`, `_next/`, `favicon.ico`
-
----
-
-### SE2 — Application Shell & Navigation
-**WQC-013** *(Story Points: 8)*
-Build the persistent application shell:
-- [`app-shell.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/layout/app-shell.tsx) — main layout wrapper with sidebar + header
-- [`sidebar.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/ui/sidebar.tsx) — navigation links: Dashboard, Upload, Wells, QA Engine, Standardisation, Analytics, Reports, Comparison, Activity, Admin
-- [`header.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/ui/header.tsx) — page title, user avatar, role badge, notification bell, logout button
-- Responsive: mobile slide-out drawer navigation
-- Dark subsurface oil-field design theme (deep navy, petroleum green, amber accents)
-
----
-
-### CE1 — CI/CD Pipeline & Branch Strategy
-**WQC-014** *(Story Points: 3)*
-- Set up GitHub branch strategy: `main` (production) → `develop` (staging) → feature branches
-- Vercel: `main` → production deployment, `develop` → preview deployment
-- Add GitHub Actions workflow: `npm run build` + `npx tsc --noEmit` on every PR
-
----
-
-### CE2 — Database Singleton & Seed Script
-**WQC-015** *(Story Points: 3)*
-- Build [`src/lib/db.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/db.ts) — Prisma singleton (prevents connection pool exhaustion in dev HMR)
-- Write [`prisma/seed.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/prisma/seed.ts) — seed 1 admin user for demo purposes
-
----
-
-## Sprint 2 Definition of Done
-
-- [ ] User can register and log in — session cookie stored, verified on each request
-- [ ] Unauthenticated requests redirect to `/login` via middleware
-- [ ] Full database schema deployed to Neon PostgreSQL (verified via Prisma Studio)
-- [ ] Application shell renders with sidebar navigation on all routes
-- [ ] Vercel preview deployment for `develop` branch is live
+### ☁️ Cloud Engineers
+- **CE1 (DevOps Lead)**
+  - Configure SSL/TLS enforcing HTTPS headers in `next.config.js` and Vercel edge routes.
+  - Set up automated GitHub Actions workflow for linting and build checks on pull requests.
+- **CE2 (Database & Security Lead)**
+  - Finalize [`schema.prisma`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/prisma/schema.prisma): `User`, `Well`, `LASFile`, `Curve`, `QualityReport`, `Anomaly`, `ActivityLog`, `APIToken`, `Field`, `Operator`.
+  - Enforce data isolation by adding `ownerId` foreign key to `Well` with `@@index([ownerId])`.
+  - Execute `npx prisma db push` to push schema to Neon PostgreSQL.
+  - Build [`src/lib/db.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/db.ts) Prisma Client singleton to prevent dev HMR connection pool exhaustion.
 
 ---
 
 ---
 
-# 🟡 SPRINT 3 — Core Engine & LAS Pipeline
+# 🟡 SPRINT 3 — Core Engine, Quality Scoring & LAS Upload
 
-**Duration:** Week 5–6
-**Theme:** Build the LAS parsing pipeline, quality scoring engine, and well management
-
----
-
-## Sprint Goal
-
-> By the end of Sprint 3, a user can upload a LAS file, parse it, receive a quality score with anomalies, and view the well in the database.
+**Duration:** Week 5–6  
+**Theme:** LAS file parser, quality scoring engine, standardisation engine, and database persistence transaction.
 
 ---
 
-## Sprint 3 Tickets
+### 💻 Software Engineers
+- **SE1 (Core Engine Lead)**
+  - Build [`parser.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/parser.ts): parse Version 2.0, Well Info, Curve Metadata, and ASCII Data sections. Normalize null indicators (`-999.25`, `-9999`, `NaN`, blanks).
+  - Build [`quality-engine.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/quality-engine.ts):
+    - Physical limit checks (`IMPOSSIBLE_VALUE`)
+    - Spike detection via Z-Score > 4.0 (`EXTREME_SPIKE`)
+    - Sensor flatline detection > 25 points (`FLATLINE`)
+    - Depth gap detection > 5× step size (`DEPTH_GAP`)
+    - Null cluster detection (`NULL_CLUSTER`)
+    - Weighted scoring formula: $(0.50 \times \text{Health}) + (0.30 \times \text{Completeness}) + (0.20 \times \text{Consistency})$.
+  - Build [`ai-analyzer.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/ai-analyzer.ts) expert system for text recommendation generation.
+  - Build [`exporter.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/exporter.ts) to construct cleaned LAS 2.0 export files with duplicate depth removal.
+- **SE2 (Full-Stack UI Lead)**
+  - Build Drag-and-Drop upload UI in [`src/app/upload/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/upload/page.tsx).
+  - Build Well management pages: [`wells/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/wells/page.tsx) and [`wells/[id]/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/wells/[id]/page.tsx).
+  - Build REST API routes with owner isolation: `GET/POST /api/wells`, `GET/DELETE /api/wells/[id]`.
 
-### SE1 — LAS Parser Engine
-**WQC-016** *(Story Points: 13)*
-Build [`src/lib/las/parser.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/parser.ts):
-- Parse all 4 LAS 2.0 sections: `~VERSION`, `~WELL`, `~CURVE`, `~ASCII`
-- Extract `wellInfo`: `wellName`, `company`, `field`, `apiUwi`, `startDepth`, `stopDepth`, `step`, `nullValue`, `depthUnit`, `latitude`, `longitude`
-- Extract `curves[]`: `mnemonic`, `unit`, `description`
-- Extract `data{}`: `depth[]` + per-curve `number[]` arrays
-- Null value detection: replace `-999.25`, `-9999`, `NaN`, blank with `null`
-- Handle LAS 2.0 WRAP mode (multi-line depth step)
-- Return `ParsedLAS` typed object
+### 📊 Data Analysts
+- **DA1 (Petrophysical Rules Lead)**
+  - Build [`standardiser.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/standardiser.ts) with exact and alias lookup logic + confidence scoring (1.0 exact, 0.95 alias, 0.50 fallback).
+- **DA2 (Imputation Lead)**
+  - Calibrate spike threshold Z-score ($4.0\sigma$) and flatline step size ($25$ consecutive points) against noisy log channels.
+- **DA3 (Basin Intelligence Lead)**
+  - Verify well metadata auto-extraction from LAS header (`WELL`, `COMP`, `FLD`, `LOC`, `API`).
+- **DA4 (Reporting & Quality Auditor)**
+  - Perform test uploads of 10 LAS test files; verify quality engine accurately categorizes files into EXCELLENT (≥90), GOOD (75–89), POOR (50–74), and CRITICAL (<50).
+
+### ☁️ Cloud Engineers
+- **CE1 (DevOps Lead)**
+  - Optimize build performance and chunk splitting in Next.js.
+- **CE2 (Database & Security Lead)**
+  - Build atomic commit transaction in [`POST /api/las`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/api/las/route.ts):
+    - Upsert Operator and Field.
+    - Validate multi-tenant isolation: throw `Error("This API/UWI is already assigned to another workspace.")` if `existingWell.ownerId !== user.id`.
+    - Create `LASFile`, `Curve` (with `dataJson`), `QualityReport`, `Anomaly`, and `ActivityLog` inside `db.$transaction()` with 30s timeout.
 
 ---
 
-### DA1 — Mnemonic Standardiser Dictionary
-**WQC-017** *(Story Points: 5)*
-Build the curve alias mapping table for [`src/lib/las/standardiser.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/standardiser.ts):
-- For each standard curve (GR, RHOB, NPHI, DT, RT, CALI, etc.), list all known aliases
-- Example: `GR` aliases → `['GAMMA', 'GAMMA_RAY', 'GRD', 'GRC', 'GRN', 'NGAM', 'NAT_GAMMA']`
-- Include `minPhysical`, `maxPhysical`, `unit` for each curve
-- `standardiseMnemonic(raw, unit)` → `{ standardMnemonic, confidence, matchedName }`
-- Confidence scoring: 1.0 exact · 0.85 alias · 0.60 unit-based · 0.40 partial · 0.20 unknown
+---
+
+# 🟠 SPRINT 4 — Advanced Visualisation, Imputation & Analytics
+
+**Duration:** Week 7–8  
+**Theme:** Multi-track log viewer, KNN imputation benchmarking modal, command dashboard, and report generation.
 
 ---
 
-### SE1 — Quality Scoring Engine
-**WQC-018** *(Story Points: 13)*
-Build [`src/lib/las/quality-engine.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/quality-engine.ts):
+### 💻 Software Engineers
+- **SE1 (Core Engine Lead)**
+  - Build Multi-Track Log Viewer component ([`log-viewer.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/well-log/log-viewer.tsx)):
+    - Dual mode: Classic Paper Log View & Dark Subsurface View.
+    - Track 1 (GR: 0–150 GAPI), Track 2 (RT: 0.2–2000 OHMM log scale), Track 3 (DT: 40–240 μs/ft, RHOB/NPHI).
+    - SVG polyline rendering with missing null gap overlays and depth tick marks.
+- **SE2 (Full-Stack UI Lead)**
+  - Build Command Dashboard ([`dashboard/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/dashboard/page.tsx)) and `GET /api/dashboard`.
+  - Build Imputation Benchmark Modal ([`imputation-benchmark-modal.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/well-log/imputation-benchmark-modal.tsx)).
+  - Build QA Engine Page ([`qa-engine/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/qa-engine/page.tsx)) and Standardisation Dictionary page ([`standardisation/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/standardisation/page.tsx)).
 
-**Anomaly detection (per curve):**
-- **A. Physical Limit Check** — flag values outside `stdDef.minPhysical / maxPhysical` as `IMPOSSIBLE_VALUE` / `CRITICAL`
-- **B. Spike Detection** — Z-score > 4.5σ AND sudden reversal (prev → curr → next) → `EXTREME_SPIKE` / `WARNING`
-- **C. Flatline Sensor** — > 25 consecutive identical values → `FLATLINE` / `WARNING`
-- **D. Null Cluster** — > 15% null in a 50-sample window → `NULL_CLUSTER` / `INFO`
+### 📊 Data Analysts
+- **DA1 (Petrophysical Rules Lead)**
+  - Implement persistent custom alias registration (`addCustomAlias` & `getMergedStandardCurves`) stored in `localStorage` in `standardiser.ts`.
+- **DA2 (Imputation Lead)**
+  - Build Multi-Method Imputation Benchmarking Engine in [`imputation-engine.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/imputation-engine.ts):
+    - Benchmark 5 strategies: KNN (K-Nearest Neighbours), Linear Interpolation, Mean, Median, Cubic Spline, Row Dropping.
+    - Ground-truth masking cross-validation to calculate RMSE, MAE, R² Score, Variance Preservation %, and Execution Speed.
+- **DA3 (Basin Intelligence Lead)**
+  - Build Field Performance ranking aggregation and Anomaly Distribution breakdown in `GET /api/analytics` and [`analytics/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/analytics/page.tsx).
+- **DA4 (Reporting & Quality Auditor)**
+  - Build PDF Audit Certificate generator (jsPDF), Excel Workbook exporter (SheetJS), and CSV logger in [`reports/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/reports/page.tsx).
 
-**Well-level anomaly detection:**
-- **E. Depth Gap** — gap in depth array > 5× step size → `DEPTH_GAP` / `WARNING`
-- **F. Duplicate Depth** — repeated depth values → `DUPLICATE_DEPTH` / `INFO`
-- **G. Unit Mismatch** — curve unit doesn't match standard → `UNIT_MISMATCH` / `INFO`
-- **H. Missing Standard Curves** — GR, RHOB, NPHI, DT absent → listed in report
+### ☁️ Cloud Engineers
+- **CE1 (DevOps Lead)**
+  - Configure client-side memory limits and asset optimization for rendering long well log SVG curves.
+- **CE2 (Database & Security Lead)**
+  - Develop Python FastAPI microservice in [`services/python_parser/main.py`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/services/python_parser/main.py) with `lasio`, `pandas`, `numpy`, and `scikit-learn` (`KNNImputer`) endpoints for high-throughput batch processing.
 
-**Scoring formula:**
+---
+
+---
+
+# 🔴 SPRINT 5 — Security, Compliance & Multi-Tenant Audit
+
+**Duration:** Week 9–10  
+**Theme:** NDA acceptance gate, strict DB-level query isolation audit, activity trail, and load testing.
+
+---
+
+### 💻 Software Engineers
+- **SE1 (Core Engine Lead)**
+  - Implement NDA acceptance check in `getCurrentUser()` flow.
+  - Build `/nda` page displaying Data Processing Agreement and "I Agree" button updating `user.ndaAcceptedAt`.
+- **SE2 (Full-Stack UI Lead)**
+  - Build Activity Audit Trail page ([`activity/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/activity/page.tsx)) and `GET /api/activity`.
+  - Build Well Comparison page ([`comparison/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/comparison/page.tsx)) for side-by-side QA comparison.
+  - Implement Admin User Management page ([`admin/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/admin/page.tsx)).
+
+### 📊 Data Analysts
+- **DA1 (Petrophysical Rules Lead)**
+  - Validate physical boundary error descriptions and suggested correction messages in `quality-engine.ts`.
+- **DA2 (Imputation Lead)**
+  - Review KNN cross-validation metrics across all 10 test wells; verify KNN achieves highest R² (>0.92) for GR/RHOB curves.
+- **DA3 (Basin Intelligence Lead)**
+  - Verify Dashboard 7-day rolling trend accurately aggregates live database telemetry.
+- **DA4 (Reporting & Quality Auditor)**
+  - Perform full end-to-end quality audit of generated PDF certificates, verifying all anomalies and AI summaries render correctly.
+
+### ☁️ Cloud Engineers
+- **CE1 (DevOps Lead)**
+  - Execute concurrency load testing: simulate 20 concurrent LAS uploads and measure API response times.
+  - Verify Vercel edge function timeouts and HTTPS SSL certificate status.
+- **CE2 (Database & Security Lead)**
+  - Perform strict Multi-Tenant Data Isolation Audit across ALL API routes (`/api/wells`, `/api/wells/[id]`, `/api/dashboard`, `/api/analytics`, `/api/las`):
+    - Verify every query enforces `where: { ownerId: user.id }` or `{ well: { ownerId: user.id } }`.
+    - Verify cross-tenant URL access attempts return `404 Not Found`.
+
+---
+
+---
+
+# 🟣 SPRINT 6 — Production Deployment, Demo & Retrospective
+
+**Duration:** Week 11–12  
+**Theme:** Production deployment, demo well dataset seeding, documentation, and stakeholder presentation.
+
+---
+
+### 💻 Software Engineers
+- **SE1 (Core Engine Lead)**
+  - Final code review of parser, quality engine, standardiser, and exporter modules.
+  - Ensure zero TypeScript compiler errors (`npm run build`).
+- **SE2 (Full-Stack UI Lead)**
+  - Polish UI animations, empty states, loading skeletons, and toast notifications.
+  - Verify responsive rendering across Mobile (375px), Tablet (768px), and Desktop (1440px).
+
+### 📊 Data Analysts
+- **DA1 (Petrophysical Rules Lead)**
+  - Final review of petrophysical standardisation dictionary and curve alias mappings.
+- **DA2 (Imputation Lead)**
+  - Prepare petrophysical missing value origin & KNN benchmarking presentation slides for stakeholders.
+- **DA3 (Basin Intelligence Lead)**
+  - Verify field performance ranking and problem wells dataset for presentation.
+- **DA4 (Reporting & Quality Auditor)**
+  - Prepare 6 pre-validated Niger Delta demo LAS files (1 EXCELLENT, 2 GOOD, 2 POOR, 1 CRITICAL) and seed script.
+
+### ☁️ Cloud Engineers
+- **CE1 (DevOps Lead)**
+  - Trigger production build deployment on Vercel (`https://*.vercel.app`).
+  - Verify domain mapping, SSL certificate, and production environment variables.
+- **CE2 (Database & Security Lead)**
+  - Perform production Neon PostgreSQL database migration and seed script execution.
+  - Dockerize and deploy Python FastAPI microservice to cloud container hosting.
+
+---
+
+---
+
+## 📊 Summary of Tasks by Role Across All 6 Sprints
+
 ```
-Curve Health = 100 − (Physical×30 + Spike×20 + Flatline×15 + Null×25 + Unit×10)
-Overall Score = (0.50 × avgCurveHealth) + (0.30 × completeness) + (0.20 × consistency)
+WellQC+ Development Team (8 Members)
+│
+├── 🧑‍💻 SE1 (Core Engine Lead)
+│    ├─ S1: Architecture & Pipe Contract  ├─ S2: Scrypt/HMAC Auth Engine
+│    ├─ S3: LAS Parser & Quality Engine   ├─ S4: Log Viewer & Exporter
+│    └─ S5: NDA Enforcement Gate          └─ S6: Code Review & Build Verification
+│
+├── 🧑‍💻 SE2 (Full-Stack UI Lead)
+│    ├─ S1: Next.js Setup & Directory     ├─ S2: Auth UI, Middleware & Shell
+│    ├─ S3: Upload UI & Well CRUD Pages   ├─ S4: Dashboard, QA Engine & Benchmark Modal
+│    └─ S5: Activity & Comparison Pages   └─ S6: UI Polish & Cross-Device Audit
+│
+├── 📊 DA1 (Petrophysical Rules Lead)
+│    ├─ S1: Curve Physical Limits (8)     ├─ S2: Raw Mnemonic Alias Dictionary
+│    ├─ S3: Standardiser Confidence Logic ├─ S4: Persistent Custom Alias Feature
+│    └─ S5: Anomaly Description Audit     └─ S6: Final Dictionary Sign-Off
+│
+├── 📊 DA2 (Missing Value & Imputation Lead)
+│    ├─ S1: Origin Causes Definition      ├─ S2: Imputation Baseline Research
+│    ├─ S3: Anomaly Threshold Calibration ├─ S4: Multi-Method KNN Benchmark Engine
+│    └─ S5: RMSE/MAE Cross-Validation     └─ S6: Stakeholder Benchmarking Presentation
+│
+├── 📊 DA3 (Basin Intelligence Lead)
+│    ├─ S1: Dashboard KPI Requirements    ├─ S2: Basin Metadata Mapping
+│    ├─ S3: Well Metadata Auto-Extract    ├─ S4: Analytics & Field Ranking
+│    └─ S5: 7-Day Trend Verification      └─ S6: Field Performance Presentation
+│
+├── 📊 DA4 (Reporting & Quality Auditor)
+│    ├─ S1: PDF Certificate Layout Req    ├─ S2: 10 Niger Delta Test LAS Dataset
+│    ├─ S3: Quality Grade Verification    ├─ S4: PDF / Excel / CSV Exporters
+│    └─ S5: End-to-End Audit Certificate  └─ S6: Demo Dataset Seeding
+│
+├── ☁️ CE1 (DevOps & CI/CD Lead)
+│    ├─ S1: Vercel Setup & Environment    ├─ S2: SSL HTTPS & GitHub Actions
+│    ├─ S3: Next.js Chunk Optimization    ├─ S4: SVG Rendering Performance Tuning
+│    └─ S5: Concurrency Load Testing      └─ S6: Production Release & Domain Config
+│
+└── ☁️ CE2 (Database & Security Lead)
+     ├─ S1: Neon PostgreSQL Provisioning  ├─ S2: Full Prisma Schema & Owner Index
+     ├─ S3: Multi-Tenant DB Transaction   ├─ S4: FastAPI Python Microservice
+     └─ S5: Query-Level Data Isolation    └─ S6: Prod DB Migration & Python Deploy
 ```
-Grades: ≥90 EXCELLENT · ≥75 GOOD · ≥50 POOR · >0 CRITICAL
 
 ---
 
-### SE1 — AI Recommendation Engine
-**WQC-019** *(Story Points: 8)*
-Build [`src/lib/las/ai-analyzer.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/ai-analyzer.ts):
-- Rule-based expert system (no external API dependency — runs fully in-process)
-- Input: `ParsedLAS` + `QualityAnalysisResult`
-- Output: `{ summary: string, recommendations: string[], riskLevel, confidence }`
-- Recommendations driven by anomaly type and severity combinations
-- Risk: LOW / MEDIUM / HIGH / CRITICAL based on Overall Score
-
----
-
-### SE1 — LAS Exporter
-**WQC-020** *(Story Points: 8)*
-Build [`src/lib/las/exporter.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/exporter.ts):
-- `buildCleanedDataExport(las, qa)` — produces cleaned LAS 2.0, CSV, curve data
-- Remove duplicate depth rows (`getUniqueDepthIndexes`)
-- Replace physically impossible values and spikes with null marker
-- Convert non-standard units to standard equivalents (e.g., g/cc → kg/m³)
-- Regenerate valid LAS 2.0 header with all 4 sections
-- Export curves using standardised mnemonics
-
----
-
-### SE2 — LAS Upload Workspace
-**WQC-021** *(Story Points: 8)*
-Build [`src/app/upload/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/upload):
-- Drag-and-drop LAS file zone with visual feedback
-- Parse and preview file contents client-side before upload
-- Display curve list, depth range, null percentage per curve
-- "Commit to Database" button → `POST /api/las` with file content
-- Show quality score, grade, and anomaly count after commit
-- Navigate to well detail page on success
-
----
-
-### SE2 — Well Management API + Pages
-**WQC-022** *(Story Points: 8)*
-- `GET /api/wells` → list wells `WHERE ownerId = user.id`
-- `POST /api/wells` → create well manually
-- `GET /api/wells/[id]` → well detail scoped to `ownerId`
-- `DELETE /api/wells/[id]` → cascading delete (owner verified first)
-- [`src/app/wells/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/wells) — sortable, filterable well inventory
-- [`src/app/wells/[id]/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/wells) — well detail with curves, anomalies, AI summary
-
----
-
-### CE2 — LAS Commit Transaction (Database Persistence Layer)
-**WQC-023** *(Story Points: 8)*
-Build [`src/app/api/las/route.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/api/las/route.ts):
-- Atomically (via `db.$transaction()`): upsert Operator, Field, Well; create LASFile, Curves, QualityReport, Anomalies, ActivityLog
-- Cross-tenant guard: `existingWell.ownerId !== user.id` → throw error
-- 30-second transaction timeout for large files
-
----
-
-### DA1 + DA2 — Test LAS File Library
-**WQC-024** *(Story Points: 5)*
-- Collect 5–10 Niger Delta LAS files covering different quality grades
-- Document expected quality score range for each file
-- Test parser against each — verify null detection, depth extraction
-- Add 2 synthetic files to `src/lib/sample-las-files.ts` for in-app demos
-
----
-
-## Sprint 3 Definition of Done
-
-- [ ] LAS file uploads, parses, and commits to PostgreSQL in < 30 seconds
-- [ ] Quality score (0–100) returned for every commit with anomaly list
-- [ ] AI summary and recommendations generated
-- [ ] Well list shows only the logged-in user's wells
-- [ ] Well detail page shows curves, score, anomalies, AI summary
-
----
-
----
-
-# 🟠 SPRINT 4 — Advanced Features & Visualisation
-
-**Duration:** Week 7–8
-**Theme:** Dashboard, analytics, log viewer, imputation benchmarking, reports
-
----
-
-## Sprint Goal
-
-> By the end of Sprint 4, the platform has a fully functional command dashboard, petrophysical log viewer, imputation benchmarking, and export capabilities.
-
----
-
-## Sprint 4 Tickets
-
-### SE2 — Command Dashboard
-**WQC-025** *(Story Points: 8)*
-Build `GET /api/dashboard` (all owner-scoped queries) + [`src/app/dashboard/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/dashboard):
-- 8 KPI cards with trend indicators
-- 7-day rolling quality trend line chart
-- Field performance bar chart
-- Problem Wells panel (bottom 5 wells)
-- Recent Activity feed (last 5 `ActivityLog` entries)
-
----
-
-### SE1 — Multi-Track Petrophysical Log Viewer
-**WQC-026** *(Story Points: 13)*
-Build [`src/components/well-log/log-viewer.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/well-log/log-viewer.tsx):
-- Classic Borehole Log Paper view: depth track + GR (green) + RT (log scale) + DT/RHOB/NPHI
-- MISSING GAP grey overlay on null value zones
-- Anomaly depth markers (coloured tick marks)
-- Dark Subsurface view: navy background, petroleum green curves
-- Controls: depth range slider, track toggles, zoom, view mode switcher
-
----
-
-### DA2 — Imputation Root Cause Diagnostics + Benchmarking Engine
-**WQC-027 / WQC-028** *(Story Points: 21)*
-Build [`src/lib/las/imputation-engine.ts`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/lib/las/imputation-engine.ts):
-- `detectMissingValueCauses()` — classify null origin: Casing Shoe, Washout, Telemetry, Off-Bottom
-- `benchmarkImputationMethods()` — 5 methods (KNN, Linear, Median, Spline, Drop) cross-validated
-- Metrics: RMSE, MAE, R², Variance Preservation, Execution Time
-- Recommended strategy table per curve type (GR→KNN, DT→Spline, RT→Median, CALI→Linear)
-
----
-
-### SE2 — Imputation Benchmark Modal + QA Engine Page
-**WQC-029 / WQC-031** *(Story Points: 10)*
-- [`imputation-benchmark-modal.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/components/well-log/imputation-benchmark-modal.tsx): curve selector, root cause panel, metrics table, best method highlighted
-- [`src/app/qa-engine/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/qa-engine): QA thresholds, stakeholder alignment banner, link to benchmarks
-- [`src/app/standardisation/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/standardisation): mnemonic override table
-
----
-
-### DA3 — Analytics + Reports Pages
-**WQC-030** *(Story Points: 8)*
-- `GET /api/analytics` — operator comparison, anomaly distribution (owner-scoped)
-- [`src/app/analytics/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/analytics) — bar + pie charts
-- [`src/app/reports/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/reports) — PDF (jsPDF), Excel (XLSX), CSV (PapaParse) export
-
----
-
-### CE3 — Python FastAPI Microservice
-**WQC-032** *(Story Points: 8)*
-Build [`services/python_parser/main.py`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/services/python_parser):
-- `POST /parse` — `lasio` parsing
-- `POST /quality` — `pandas` statistical checks
-- `POST /impute/knn` — `scikit-learn` `KNNImputer`
-- `POST /impute/benchmark` — all 5 methods, return metrics JSON
-
----
-
-## Sprint 4 Definition of Done
-
-- [ ] Dashboard renders 8 KPIs from live database data
-- [ ] Multi-track log viewer renders GR, RT, DT, RHOB, NPHI with depth grid and missing gaps
-- [ ] Imputation benchmark modal shows RMSE/MAE/R² for 5 methods
-- [ ] PDF report exports successfully
-- [ ] Python microservice health check returns 200 OK
-
----
-
----
-
-# 🔴 SPRINT 5 — QA, Security & Compliance
-
-**Duration:** Week 9–10
-**Theme:** Security hardening, NDA gate, cross-tenant audit, activity log, bug fixes
-
----
-
-## Sprint Goal
-
-> WellQC+ is hardened for multi-tenant use. NDA acceptance is enforced. Data isolation is audited. Activity log is complete.
-
----
-
-## Sprint 5 Tickets
-
-### CE3 — NDA Acceptance Gate
-**WQC-033** *(Story Points: 5)*
-- Build `/nda` page with Data Processing Agreement text and "I Accept" button
-- `PATCH /api/auth/me` → set `ndaAcceptedAt = now()`
-- Redirect to `/nda` if current user's `ndaAcceptedAt` is null
-
----
-
-### CE3 — Full Security Hardening Audit
-**WQC-034** *(Story Points: 8)*
-- Verify `.env` never committed to Git
-- Confirm every API route calls `getCurrentUser()` and returns 401 if null
-- Test cross-tenant: User B calls `GET /api/wells/[User-A-well-id]` → must return 404
-- Test LAS upload cross-tenant guard: `existingWell.ownerId !== user.id` → throws error
-- Verify cookie flags: `httpOnly: true`, `sameSite: lax`, `secure: true` in production
-
----
-
-### SE2 — Activity Audit Trail + Well Comparison
-**WQC-036 / WQC-037** *(Story Points: 10)*
-- [`src/app/activity/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/activity): audit log with action filter, CSV export, read-only for non-Admin
-- [`src/app/comparison/page.tsx`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/src/app/comparison): side-by-side QA metric comparison for any 2 wells
-
----
-
-### CE1 — Performance Testing
-**WQC-038** *(Story Points: 5)*
-- Load test: 10 concurrent LAS uploads
-- Measure p50/p95 response times for `/api/las`, `/api/wells`, `/api/dashboard`
-- Verify Neon PgBouncer connection pool holds under concurrency
-- Set Vercel function timeout to 60s
-
----
-
-### DA3 — Expert QA Validation on Real Data
-**WQC-039** *(Story Points: 8)*
-- Upload 10 real Niger Delta LAS files to staging environment
-- DA1 reviews scores and signs off on quality engine accuracy
-- DA2 validates imputation benchmark RMSE values on real curves
-- Document discrepancies for SE1 calibration
-
----
-
-### CE2 — Database Backup & Recovery
-**WQC-040** *(Story Points: 3)*
-- Configure Neon PITR (7-day retention)
-- Document recovery steps
-- Test restoration to staging branch
-
----
-
-## Sprint 5 Definition of Done
-
-- [ ] NDA page live; users without `ndaAcceptedAt` are blocked
-- [ ] Cross-tenant test passes at API level (not just UI)
-- [ ] Activity audit trail page live with all action types logged
-- [ ] Performance test p95 < 10s for LAS commit
-- [ ] Quality engine accuracy signed off by DA1
-
----
-
----
-
-# 🟣 SPRINT 6 — Production Launch
-
-**Duration:** Week 11–12
-**Theme:** Go-live, stakeholder demo, final documentation
-
----
-
-## Sprint Goal
-
-> WellQC+ is live on a public `https://` domain. Stakeholder demo is ready. Documentation is complete.
-
----
-
-## Sprint 6 Tickets
-
-### CE1 — Production Go-Live
-**WQC-041** *(Story Points: 5)*
-- `vercel --prod` deployment from `main` branch
-- Custom domain with SSL certificate
-- Smoke test all routes on production URL
-
----
-
-### CE2 — Production Database
-**WQC-042** *(Story Points: 3)*
-- Final `npx prisma db push` to production Neon
-- Seed demo admin account for stakeholder presentation
-- Verify PgBouncer pooling active in production
-
----
-
-### DA3 — Demo Dataset & Walkthrough Script
-**WQC-043** *(Story Points: 5)*
-- Upload 6 pre-validated Niger Delta LAS files (1 EXCELLENT, 2 GOOD, 2 POOR, 1 CRITICAL)
-- Prepare 7-step demo walkthrough narrative for stakeholder presentation
-- Rehearse with all 8 team members
-
----
-
-### SE1 + SE2 — Final UI Polish
-**WQC-044** *(Story Points: 5)*
-- Responsive layout review: 375px / 768px / 1440px
-- Loading skeleton states on all data-fetching pages
-- Empty state messages ("No wells yet — upload your first LAS file")
-- Page `<title>` and meta descriptions on all routes
-
----
-
-### All — README & Documentation
-**WQC-045** *(Story Points: 5)*
-Update [`README.md`](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/WellQC+/README.md):
-- Project overview, tech stack, local setup, `.env` reference
-- Quality scoring formula documentation
-- API endpoint reference table
-- LAS format notes
-
----
-
-### CE3 — Python Service Production Deployment
-**WQC-046** *(Story Points: 5)*
-- Write `Dockerfile` for FastAPI service
-- Deploy to Railway or Google Cloud Run
-- Set `PYTHON_SERVICE_URL` in Vercel environment
-- Verify `/health` on production URL
-
----
-
-### All — Retrospective
-**WQC-047** *(Story Points: 2)*
-- Sprint retrospective: what went well, blockers, improvements
-- Document technical debt items
-- Final team roles document update for presentation
-
----
-
-## Sprint 6 Definition of Done
-
-- [ ] WellQC+ live at `https://` with valid SSL
-- [ ] All 7 demo steps walkable without errors on production
-- [ ] README complete and accurate
-- [ ] Python service responding on production URL
-- [ ] Presentation rehearsed by full team
-
----
-
----
-
-## 📊 Complete Sprint Summary
-
-| Sprint | Weeks | Theme | Key Deliverables |
-|--------|-------|-------|-----------------|
-| **Sprint 1** | 1–2 | Discovery & Architecture | Tech stack locked · Vercel + Neon live · Git repo |
-| **Sprint 2** | 3–4 | Foundation & Database | Full auth · RBAC · Prisma schema · App shell |
-| **Sprint 3** | 5–6 | Core Engine & LAS Pipeline | Parser · QA engine · AI analyzer · Exporter · Well CRUD |
-| **Sprint 4** | 7–8 | Advanced Features | Dashboard · Log viewer · Imputation · Analytics · Reports |
-| **Sprint 5** | 9–10 | QA, Security & Compliance | NDA gate · Cross-tenant audit · Activity log · Load test |
-| **Sprint 6** | 11–12 | Production Launch | Go-live · Demo dataset · Documentation · Retrospective |
-
----
-
-## 📦 Story Points by Role (3 Months)
-
-| Role | Sprint Focus | Approx. Total |
-|------|-------------|---------------|
-| SE1 | Parser, QA engine, AI analyzer, exporter, log viewer | **68 pts** |
-| SE2 | Auth, UI pages, API routes, dashboard, modal, reports | **72 pts** |
-| DA1 | Petrophysical rules, mnemonic dictionary, QA validation | **30 pts** |
-| DA2 | Missing value research, root cause diagnostics, benchmarking | **34 pts** |
-| DA3 | KPI framework, analytics, reports, demo dataset | **28 pts** |
-| CE1 | Vercel deployment, CI/CD, performance testing | **18 pts** |
-| CE2 | Neon provisioning, Prisma schema, DB singleton, backups | **32 pts** |
-| CE3 | Python service, auth security, NDA gate, containerisation | **29 pts** |
-| **Total** | **47 tickets** | **~311 story points** |
-
----
-
-## 🔑 Full Technology Stack
-
-| Layer | Technology | Sprint Decided |
-|-------|-----------|---------------|
-| Framework | Next.js 15 App Router | Sprint 1 |
-| Language | TypeScript (strict) | Sprint 1 |
-| Styling | Tailwind CSS | Sprint 1 |
-| Database ORM | Prisma | Sprint 1 |
-| Database | Neon PostgreSQL (AWS us-east-1) | Sprint 1 |
-| Authentication | `scrypt` + HMAC-SHA256 session tokens | Sprint 2 |
-| Charts | Recharts | Sprint 4 |
-| PDF Export | jsPDF | Sprint 4 |
-| Excel Export | SheetJS (XLSX) | Sprint 4 |
-| CSV Export | PapaParse | Sprint 4 |
-| Python ML Service | FastAPI + lasio + pandas + scikit-learn | Sprint 4 |
-| App Hosting | Vercel (HTTPS auto-provisioned) | Sprint 1 |
-| Python Hosting | Railway / Google Cloud Run | Sprint 6 |
-
----
-
-> **WellQC+ v2.4.0-Enterprise** · Niger Delta Subsurface Analytics Platform
-> 3-month sprint plan · 8-person team · 6 sprints · 47 tickets · ~311 story points
+> **WellQC+ v2.4.0-Enterprise** | Subsurface Analytics Platform  
+> Updated 3-Month Sprint Plan · 8 Team Members (2 SE, 4 DA, 2 CE) · 6 Sprints · 100% Grounded in Codebase.
