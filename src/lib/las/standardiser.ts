@@ -145,16 +145,73 @@ export interface StandardisationResult {
   category: string;
 }
 
+// LocalStorage key for custom alias overrides
+const CUSTOM_ALIASES_KEY = 'wellqc_custom_aliases';
+
+// Helper to get stored custom aliases from browser storage or runtime memory
+function getStoredCustomAliases(): Record<string, string[]> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(CUSTOM_ALIASES_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+// Save custom aliases to storage
+export function addCustomAlias(standardMnemonic: string, newAlias: string): boolean {
+  const cleanAlias = newAlias.trim().toUpperCase();
+  if (!cleanAlias) return false;
+
+  const current = getStoredCustomAliases();
+  const existing = current[standardMnemonic] || [];
+
+  if (!existing.includes(cleanAlias)) {
+    current[standardMnemonic] = [...existing, cleanAlias];
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(CUSTOM_ALIASES_KEY, JSON.stringify(current));
+    }
+  }
+
+  // Also update in-memory STANDARD_CURVES aliases if present
+  if (STANDARD_CURVES[standardMnemonic]) {
+    if (!STANDARD_CURVES[standardMnemonic].aliases.includes(cleanAlias)) {
+      STANDARD_CURVES[standardMnemonic].aliases.push(cleanAlias);
+    }
+  }
+
+  return true;
+}
+
+// Retrieve standard curve definitions merged with custom persistent aliases
+export function getMergedStandardCurves(): Record<string, StandardCurveDef> {
+  const custom = getStoredCustomAliases();
+  const merged: Record<string, StandardCurveDef> = {};
+
+  for (const [key, def] of Object.entries(STANDARD_CURVES)) {
+    const customList = custom[key] || [];
+    const combinedAliases = Array.from(new Set([...def.aliases, ...customList]));
+    merged[key] = {
+      ...def,
+      aliases: combinedAliases,
+    };
+  }
+
+  return merged;
+}
+
 /**
  * Standardises raw LAS curve mnemonics to petrophysical standard names
  */
 export function standardiseMnemonic(rawMnemonic: string, rawUnit: string = ''): StandardisationResult {
   const cleanMnem = rawMnemonic.trim().toUpperCase();
   const cleanUnit = rawUnit.trim().toUpperCase();
+  const curves = getMergedStandardCurves();
 
   // Exact match against standard keys
-  if (STANDARD_CURVES[cleanMnem]) {
-    const std = STANDARD_CURVES[cleanMnem];
+  if (curves[cleanMnem]) {
+    const std = curves[cleanMnem];
     return {
       originalMnemonic: rawMnemonic,
       standardMnemonic: std.standardMnemonic,
@@ -168,7 +225,7 @@ export function standardiseMnemonic(rawMnemonic: string, rawUnit: string = ''): 
   }
 
   // Alias lookup matching
-  for (const [key, std] of Object.entries(STANDARD_CURVES)) {
+  for (const [key, std] of Object.entries(curves)) {
     for (const alias of std.aliases) {
       if (cleanMnem === alias || cleanMnem.startsWith(alias) || alias.startsWith(cleanMnem)) {
         const confidence = cleanMnem === alias ? 0.95 : 0.82;
@@ -198,3 +255,4 @@ export function standardiseMnemonic(rawMnemonic: string, rawUnit: string = ''): 
     category: 'OTHER',
   };
 }
+

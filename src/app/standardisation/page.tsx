@@ -1,16 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppShell } from "@/components/layout/app-shell";
-import { STANDARD_CURVES } from "@/lib/las/standardiser";
+import { getMergedStandardCurves, addCustomAlias, StandardCurveDef } from "@/lib/las/standardiser";
 import { Layers, Search, Check, Edit, Plus, RefreshCw, ShieldCheck } from "lucide-react";
 
 export default function StandardisationPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [curves, setCurves] = useState(Object.values(STANDARD_CURVES));
+  const [curves, setCurves] = useState<StandardCurveDef[]>([]);
   const [overrideModalOpen, setOverrideModalOpen] = useState(false);
   const [selectedCurve, setSelectedCurve] = useState<string | null>(null);
   const [newAlias, setNewAlias] = useState("");
+
+  useEffect(() => {
+    setCurves(Object.values(getMergedStandardCurves()));
+  }, []);
 
   const filteredCurves = curves.filter((c) =>
     c.standardMnemonic.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -21,16 +25,15 @@ export default function StandardisationPage() {
   const handleAddAlias = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCurve || !newAlias) return;
-    setCurves((prev) =>
-      prev.map((c) =>
-        c.standardMnemonic === selectedCurve
-          ? { ...c, aliases: [...c.aliases, newAlias.toUpperCase().trim()] }
-          : c
-      )
-    );
+
+    addCustomAlias(selectedCurve, newAlias);
+    setCurves(Object.values(getMergedStandardCurves()));
+
     setOverrideModalOpen(false);
     setNewAlias("");
   };
+
+
 
   return (
     <AppShell>

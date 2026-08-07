@@ -46,3 +46,25 @@ We have designed, built, and verified **WellQC+**, an enterprise-grade cloud pla
 
 1. **Prisma Database Generation & Seed**: Executed `prisma db push` and `prisma db seed` successfully, creating SQLite `dev.db` pre-populated with users, wells, LAS files, curves, and reports.
 2. **Production Build**: Executed `npm run build` with zero TypeScript errors and generated optimized static and dynamic routes for all 14 application pages.
+
+## Relationship Between Standardiser, Quality Engine, and Uploaded LAS Files
+The Standardiser, Quality Engine, and LAS Exporter / Database Commit form a sequential, 3-stage data processing pipeline whenever a LAS file is uploaded:
+
+[ Upload Raw LAS File ]
+          │
+          ▼
+1. Standardiser (standardiser.ts)
+   └─ Identifies raw mnemonics (e.g., GAM, DEN, AC, ILD) -> Standard mnemonics (GR, RHOB, DT, RT)
+   └─ Supplies expected standard units & min/max physical boundaries (e.g. GR: 0–150 GAPI, RHOB: 1.65–2.65 g/cc)
+          │
+          ▼
+2. Quality Engine (quality-engine.ts)
+   └─ Queries the Standardiser to get the target curve's physical limits
+   └─ Scans all data points for: Impossible Values (out of bounds), Extreme Spikes (>4.0σ), Flatlines, Depth Gaps, Null Clusters
+   └─ Calculates overall Quality Score (0–100), Completeness, Consistency & generates Anomaly Reports
+          │
+          ▼
+3. Exporter & Database Commit (exporter.ts / POST /api/las)
+   └─ Clips/nulls flagged impossible physical values or extreme spikes
+   └─ Standardises curve names in the cleaned file export
+   └─ Persists Well, LASFile, Curve, QualityReport, and Anomaly rows to PostgreSQL
